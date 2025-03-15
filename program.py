@@ -1,42 +1,61 @@
 import json
 import random
 
-def generate_timetable(teachers, classes, days, periods_per_day):
+def load_config(file_path):
+    with open(file_path, "r") as f:
+        return json.load(f)
+
+def generate_timetable(config, days, periods_per_day):
+    teachers = {t["name"]: t["subjects"] for t in config["teachers"]}
+    classes = config["classes"]
+    time_grant = config["time_grant"]
+    
     timetable = {teacher: {} for teacher in teachers}
-    class_timetable = {cls: {} for cls in classes}
+    class_timetable = {cls["class_name"]: {} for cls in classes}
+    
+    assigned_hours = {cls["class_name"]: {subj: 0 for subj in time_grant[str(cls["grade"])]} for cls in classes}
     
     for day in days:
         for period in range(1, periods_per_day + 1):
-            available_teachers = set(teachers)
-            available_classes = set(classes)
+            available_teachers = set(teachers.keys())
+            available_classes = set(cls["class_name"] for cls in classes)
             
             for cls in classes:
-                if cls not in available_classes:
+                class_name = cls["class_name"]
+                grade = str(cls["grade"])
+                
+                if class_name not in available_classes:
                     continue
                 
-                possible_teachers = [t for t in available_teachers if t in teachers]
+                subjects_needed = [s for s, h in time_grant[grade].items() if assigned_hours[class_name][s] < h]
+                
+                if not subjects_needed:
+                    continue
+                
+                subject = random.choice(subjects_needed)
+                possible_teachers = [t for t, subs in teachers.items() if subject in subs and t in available_teachers]
                 
                 if not possible_teachers:
                     continue
                 
                 teacher = random.choice(possible_teachers)
                 
-                timetable[teacher].setdefault(day, {})[period] = cls
-                class_timetable[cls].setdefault(day, {})[period] = teacher
+                timetable[teacher].setdefault(day, {})[period] = {"class": class_name, "subject": subject}
+                class_timetable[class_name].setdefault(day, {})[period] = {"teacher": teacher, "subject": subject}
                 
+                assigned_hours[class_name][subject] += 1
                 available_teachers.remove(teacher)
-                available_classes.remove(cls)
+                available_classes.remove(class_name)
     
     return timetable, class_timetable
 
-# Define teachers and classes
-teachers = ["Mr. Smith", "Ms. Johnson", "Mr. Brown", "Ms. Garcia"]
-classes = ["Class 1A", "Class 1B", "Class 2A", "Class 2B"]
+# Load configuration
+config = load_config("config.json")
 
 days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 periods_per_day = 6
 
-timetable, class_timetable = generate_timetable(teachers, classes, days, periods_per_day)
+timetable, class_timetable = generate_timetable(config, days, periods_per_day)
 
 data = {
     "teachers_timetable": timetable,

@@ -1,0 +1,55 @@
+{
+    "teachers": [
+      { "name": "Mr. Smith", "subjects": ["Mathematics", "Physics"] },
+      { "name": "Ms. Johnson", "subjects": ["English", "Literature"] },
+      { "name": "Dr. Brown", "subjects": ["Biology", "Chemistry"] },
+      { "name": "Mrs. Davis", "subjects": ["History", "Geography"] },
+      { "name": "Mr. Wilson", "subjects": ["Computer Science"] }
+    ],
+    
+    "classes": [
+      { "grade": 1, "class_name": "1A" },
+      { "grade": 1, "class_name": "1B" },
+      { "grade": 2, "class_name": "2A" },
+      { "grade": 2, "class_name": "2B" },
+      { "grade": 3, "class_name": "3A" },
+      { "grade": 3, "class_name": "3B" },
+      { "grade": 4, "class_name": "4A" },
+      { "grade": 4, "class_name": "4B" }
+    ],
+    
+    "time_grant": {
+      "1": {
+        "Mathematics": 5,
+        "English": 4,
+        "Biology": 3,
+        "History": 3,
+        "Computer Science": 2
+      },
+      "2": {
+        "Mathematics": 5,
+        "English": 4,
+        "Physics": 3,
+        "Chemistry": 3,
+        "History": 3,
+        "Computer Science": 3
+      },
+      "3": {
+        "Mathematics": 4,
+        "English": 4,
+        "Physics": 4,
+        "Chemistry": 3,
+        "Geography": 3,
+        "Computer Science": 4
+      },
+      "4": {
+        "Mathematics": 4,
+        "English": 3,
+        "Physics": 4,
+        "Chemistry": 4,
+        "Geography": 3,
+        "Computer Science": 5
+      }
+    }
+  }
+  
