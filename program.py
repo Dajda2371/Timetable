@@ -14,6 +14,20 @@ def generate_timetable(config, days, periods_per_day):
     class_timetable = {cls["class_name"]: {} for cls in classes}
     
     assigned_hours = {cls["class_name"]: {subj: 0 for subj in time_grant[str(cls["grade"])]} for cls in classes}
+    subject_teachers = {}
+    
+    for cls in classes:
+        class_name = cls["class_name"]
+        class_teacher = cls["class_teacher"]
+        grade = str(cls["grade"])
+        
+        for subject in time_grant[grade]:
+            if subject in teachers[class_teacher]:
+                subject_teachers.setdefault(class_name, {})[subject] = class_teacher
+            else:
+                available_teachers = [t for t, subs in teachers.items() if subject in subs]
+                if available_teachers:
+                    subject_teachers.setdefault(class_name, {})[subject] = random.choice(available_teachers)
     
     for day in days:
         for period in range(1, periods_per_day + 1):
@@ -33,12 +47,10 @@ def generate_timetable(config, days, periods_per_day):
                     continue
                 
                 subject = random.choice(subjects_needed)
-                possible_teachers = [t for t, subs in teachers.items() if subject in subs and t in available_teachers]
+                teacher = subject_teachers[class_name][subject]
                 
-                if not possible_teachers:
+                if teacher not in available_teachers:
                     continue
-                
-                teacher = random.choice(possible_teachers)
                 
                 timetable[teacher].setdefault(day, {})[period] = {"class": class_name, "subject": subject}
                 class_timetable[class_name].setdefault(day, {})[period] = {"teacher": teacher, "subject": subject}
@@ -53,7 +65,7 @@ def generate_timetable(config, days, periods_per_day):
 config = load_config("config.json")
 
 days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-periods_per_day = 6
+periods_per_day = 8
 
 timetable, class_timetable = generate_timetable(config, days, periods_per_day)
 
