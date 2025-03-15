@@ -1,5 +1,6 @@
 import json
 import random
+import platform
 
 def load_config(file_path):
     with open(file_path, "r") as f:
@@ -75,7 +76,11 @@ data = {
 }
 
 # Save to JSON file
-with open("timetable.json", "w") as f:
-    json.dump(data, f, indent=4)
+if platform.system() == "Windows":
+    with open("data\\timetable.json", "w") as f:
+        json.dump(data, f, indent=4)
+else:
+    with open("data/timetable.json", "w") as f:
+        json.dump(data, f, indent=4)
 
 print("Timetable generated and saved to timetable.json")
