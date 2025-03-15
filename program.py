@@ -79,8 +79,8 @@ data = {
 if platform.system() == "Windows":
     with open("data\\timetable.json", "w") as f:
         json.dump(data, f, indent=4)
+        print("Timetable generated and saved to \"data\\timetable.json\"")
 else:
     with open("data/timetable.json", "w") as f:
         json.dump(data, f, indent=4)
-
-print("Timetable generated and saved to timetable.json")
+        print("Timetable generated and saved to \"data/timetable.json\"")
