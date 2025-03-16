@@ -1,6 +1,8 @@
 import json
 import random
+import http.server
 import platform
+import socketserver
 
 def load_config(file_path):
     with open(file_path, "r") as f:
@@ -82,22 +84,37 @@ def generate_timetable(config):
     
     return timetable, class_timetable
 
-# Load configuration
-config = load_config("config.json")
+class RequestHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == "/generate":
+            config = load_config("config.json")
+            timetable, class_timetable = generate_timetable(config)
+            data = {
+                "teachers_timetable": timetable,
+                "classes_timetable": class_timetable
+            }
 
-timetable, class_timetable = generate_timetable(config)
+            # Save to JSON file
+            if platform.system() == "Windows":
+                with open("data\\timetable.json", "w") as f:
+                    json.dump(data, f, indent=4)
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"message": "Timetable saved to \"data\\timetable.json\""}).encode())
+                    print("Timetable generated and saved to \"data\\timetable.json\"")
+            else:
+                with open("data/timetable.json", "w") as f:
+                    json.dump(data, f, indent=4)
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"message": "Timetable saved to \"data/timetable.json\""}).encode())
+                    print("Timetable generated and saved to \"data/timetable.json\"")
+        else:
+            super().do_GET()
 
-data = {
-    "teachers_timetable": timetable,
-    "classes_timetable": class_timetable
-}
-
-# Save to JSON file
-if platform.system() == "Windows":
-    with open("data\\timetable.json", "w") as f:
-        json.dump(data, f, indent=4)
-        print("Timetable generated and saved to \"data\\timetable.json\"")
-else:
-    with open("data/timetable.json", "w") as f:
-        json.dump(data, f, indent=4)
-        print("Timetable generated and saved to \"data/timetable.json\"")
+PORT = 8000
+with socketserver.TCPServer(("", PORT), RequestHandler) as httpd:
+    print(f"Serving at port {PORT}")
+    httpd.serve_forever()
