@@ -1,140 +1,288 @@
 {
     "teachers": [
-        { "name": "Mr. Smith", "subjects": ["Mathematics", "Physics"] },
-        { "name": "Ms. Johnson", "subjects": ["English", "Literature"] },
-        { "name": "Dr. Brown", "subjects": ["Biology", "Chemistry"] },
-        { "name": "Mrs. Davis", "subjects": ["History", "Geography"] },
-        { "name": "Mr. Wilson", "subjects": ["Computer Science"] },
-        { "name": "Ms. Thompson", "subjects": ["Art", "Music"] },
-        { "name": "Mr. Anderson", "subjects": ["Physical Education"] },
-        { "name": "Dr. Martinez", "subjects": ["Economics"] },
-        { "name": "Mr. Roberts", "subjects": ["Mathematics", "Economics"] },
-        { "name": "Ms. Clark", "subjects": ["Biology", "Geography"] },
-        { "name": "Dr. Lewis", "subjects": ["English"] },
-        { "name": "Mrs. Hall", "subjects": ["Computer Science", "Art"] },
-        { "name": "Mr. Adams", "subjects": ["Economics", "Business Studies"] },
-        { "name": "Ms. White", "subjects": ["Literature", "History"] },
-        { "name": "Dr. Evans", "subjects": ["Computer Science", "Geography"] },
-        { "name": "Mrs. Baker", "subjects": ["Music"] },
-        { "name": "Mr. Scott", "subjects": ["Chemistry"] },
-        { "name": "Ms. Green", "subjects": ["Mathematics", "Economics"] },
-        { "name": "Dr. Carter", "subjects": ["Computer Science", "Physics"] },
-        { "name": "Mr. Turner", "subjects": ["English", "History"] }
+        {
+            "name": "Mr. Smith",
+            "subjects": [
+                "Mathematics",
+                "Physics"
+            ]
+        },
+        {
+            "name": "Ms. Johnson",
+            "subjects": [
+                "English",
+                "Literature"
+            ]
+        },
+        {
+            "name": "Dr. Brown",
+            "subjects": [
+                "Biology",
+                "Chemistry"
+            ]
+        },
+        {
+            "name": "Mrs. Davis",
+            "subjects": [
+                "History",
+                "Geography"
+            ]
+        },
+        {
+            "name": "Mr. Wilson",
+            "subjects": [
+                "Computer Science"
+            ]
+        },
+        {
+            "name": "Ms. Thompson",
+            "subjects": [
+                "Art",
+                "Music"
+            ]
+        },
+        {
+            "name": "Mr. Anderson",
+            "subjects": [
+                "Physical Education"
+            ]
+        },
+        {
+            "name": "Dr. Martinez",
+            "subjects": [
+                "Economics"
+            ]
+        },
+        {
+            "name": "Mr. Roberts",
+            "subjects": [
+                "Mathematics",
+                "Economics"
+            ]
+        },
+        {
+            "name": "Ms. Clark",
+            "subjects": [
+                "Biology",
+                "Geography"
+            ]
+        },
+        {
+            "name": "Dr. Lewis",
+            "subjects": [
+                "English"
+            ]
+        },
+        {
+            "name": "Mrs. Hall",
+            "subjects": [
+                "Computer Science",
+                "Art"
+            ]
+        },
+        {
+            "name": "Mr. Adams",
+            "subjects": [
+                "Economics",
+                "Business Studies"
+            ]
+        },
+        {
+            "name": "Ms. White",
+            "subjects": [
+                "Literature",
+                "History"
+            ]
+        },
+        {
+            "name": "Dr. Evans",
+            "subjects": [
+                "Computer Science",
+                "Geography"
+            ]
+        },
+        {
+            "name": "Mrs. Baker",
+            "subjects": [
+                "Music"
+            ]
+        },
+        {
+            "name": "Mr. Scott",
+            "subjects": [
+                "Chemistry"
+            ]
+        },
+        {
+            "name": "Ms. Green",
+            "subjects": [
+                "Mathematics",
+                "Economics"
+            ]
+        },
+        {
+            "name": "Dr. Carter",
+            "subjects": [
+                "Computer Science",
+                "Physics"
+            ]
+        },
+        {
+            "name": "Mr. Turner",
+            "subjects": [
+                "English",
+                "History"
+            ]
+        }
     ],
-    
     "classes": [
-        { "grade": 1, "class_name": "1A", "class_teacher": "Mr. Smith" },
-        { "grade": 1, "class_name": "1B", "class_teacher": "Ms. Johnson" },
-        { "grade": 2, "class_name": "2A", "class_teacher": "Dr. Brown" },
-        { "grade": 2, "class_name": "2B", "class_teacher": "Mrs. Davis" },
-        { "grade": 3, "class_name": "3A", "class_teacher": "Mr. Wilson" },
-        { "grade": 3, "class_name": "3B", "class_teacher": "Ms. Thompson" },
-        { "grade": 4, "class_name": "4A", "class_teacher": "Mr. Anderson" },
-        { "grade": 4, "class_name": "4B", "class_teacher": "Dr. Martinez" }
+        {
+            "grade": 1,
+            "class_name": "1A",
+            "class_teacher": "Mr. Smith"
+        },
+        {
+            "grade": 1,
+            "class_name": "1B",
+            "class_teacher": "Ms. Johnson"
+        },
+        {
+            "grade": 2,
+            "class_name": "2A",
+            "class_teacher": "Dr. Brown"
+        },
+        {
+            "grade": 2,
+            "class_name": "2B",
+            "class_teacher": "Mrs. Davis"
+        },
+        {
+            "grade": 3,
+            "class_name": "3A",
+            "class_teacher": "Mr. Wilson"
+        },
+        {
+            "grade": 3,
+            "class_name": "3B",
+            "class_teacher": "Ms. Thompson"
+        },
+        {
+            "grade": 4,
+            "class_name": "4A",
+            "class_teacher": "Mr. Anderson"
+        },
+        {
+            "grade": 4,
+            "class_name": "4B",
+            "class_teacher": "Dr. Martinez"
+        }
     ],
-    
     "time_grant": {
         "1": {
             "English": 2,
             "Literature": 1,
             "Mathematics": 4,
-
             "Biology": 2,
             "History": 2,
             "Geography": 2,
             "Chemistry": 2,
             "Physics": 3,
-            
             "Computer Science": 1,
             "Physical Education": 2,
             "Art": 2,
             "Music": 1,
-
             "Economics": 3,
             "Business Studies": 0
         },
-
         "2": {
             "English": 3,
             "Literature": 1,
             "Mathematics": 5,
-
             "Biology": 2,
             "History": 1,
             "Geography": 2,
             "Chemistry": 1,
             "Physics": 2,
-            
             "Computer Science": 2,
             "Physical Education": 2,
             "Art": 2,
             "Music": 0,
-
             "Economics": 3,
             "Business Studies": 0
         },
-
         "3": {
             "English": 3,
             "Literature": 1,
             "Mathematics": 4,
-
             "Biology": 2,
             "History": 1,
             "Geography": 2,
             "Chemistry": 1,
             "Physics": 2,
-            
             "Computer Science": 2,
             "Physical Education": 2,
             "Art": 2,
             "Music": 0,
-
             "Economics": 2,
             "Business Studies": 0
-            },
-
+        },
         "4": {
             "English": 4,
             "Literature": 1,
             "Mathematics": 5,
-
             "Biology": 1,
             "History": 1,
             "Geography": 1,
             "Chemistry": 0,
             "Physics": 1,
-            
             "Computer Science": 3,
             "Physical Education": 2,
             "Art": 3,
             "Music": 0,
-
             "Economics": 2,
             "Business Studies": 1
         }
     },
-
     "schedule_config": {
         "monday": {
             "max_periods": 8,
-            "lunch_breaks": [5, 6, 7]
+            "lunch_breaks": [
+                5,
+                6,
+                7
+            ]
         },
         "tuesday": {
             "max_periods": 8,
-            "lunch_breaks": [5, 6, 7]
+            "lunch_breaks": [
+                5,
+                6,
+                7
+            ]
         },
         "wednesday": {
             "max_periods": 6,
-            "lunch_breaks": [5, 6, 7]
+            "lunch_breaks": [
+                5,
+                6,
+                7
+            ]
         },
         "thursday": {
             "max_periods": 8,
-            "lunch_breaks": [5, 6, 7]
+            "lunch_breaks": [
+                5,
+                6,
+                7
+            ]
         },
         "friday": {
             "max_periods": 6,
-            "lunch_breaks": [5, 6, 7]
+            "lunch_breaks": [
+                5,
+                6,
+                7
+            ]
         }
     }
 }

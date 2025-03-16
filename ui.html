@@ -50,7 +50,6 @@
         </div>
         
         <button id="save-config">Save Config</button>
-
         <button id="generateButton">Generate Timetables</button>
         <p id="status"></p>
     </div>
@@ -60,8 +59,8 @@
 
         async function loadConfig() {
             try {
-                const response = await fetch("config.json");
-                if (!response.ok) throw new Error("Failed to load config.json");
+                const response = await fetch("/config");
+                if (!response.ok) throw new Error("Failed to load config");
                 config = await response.json();
                 renderTeachers();
                 renderClasses();
@@ -127,28 +126,37 @@
             renderClasses();
         }
 
-        function saveConfig() {
-            console.log("Saving config:", JSON.stringify(config, null, 2));
-            alert("Changes saved to console. Implement file saving logic on backend.");
+        async function saveConfig() {
+            try {
+                const response = await fetch("/save-config", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(config),
+                });
+                const data = await response.json();
+                document.getElementById("status").textContent = data.message;
+            } catch (error) {
+                console.error("Error saving config:", error);
+                document.getElementById("status").textContent = "Failed to save config.";
+            }
         }
 
         document.getElementById("add-teacher").addEventListener("click", addTeacher);
         document.getElementById("add-class").addEventListener("click", addClass);
         document.getElementById("save-config").addEventListener("click", saveConfig);
+        document.getElementById("generateButton").addEventListener("click", function() {
+            fetch("/generate")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("status").textContent = data.message;
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    document.getElementById("status").textContent = "Failed to generate timetables.";
+                });
+        });
 
         loadConfig();
-
-        document.getElementById("generateButton").addEventListener("click", function() {
-        fetch("http://localhost:8000/generate")
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("status").textContent = data.message;
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                document.getElementById("status").textContent = "Failed to generate timetables.";
-            });
-        });
     </script>
 </body>
 </html>
