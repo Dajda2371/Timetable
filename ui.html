@@ -6,7 +6,7 @@
     <title>Config Editor</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; }
-        .container { max-width: 800px; margin: auto; }
+        .container { max-width: 1000px; margin: auto; }
         .section { margin-bottom: 20px; }
         input, select { margin: 5px 0; padding: 8px; width: 100%; }
         button { padding: 10px; background: blue; color: white; border: none; cursor: pointer; }
@@ -48,6 +48,40 @@
             </table>
             <button id="add-class">Add Class</button>
         </div>
+
+        <div class="section" id="time-grant-section">
+            <h2>Time Grant</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Grade 1</th>
+                        <th>Grade 2</th>
+                        <th>Grade 3</th>
+                        <th>Grade 4</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="time-grant-list"></tbody>
+            </table>
+            <button id="add-time-grant">Add Subject</button>
+        </div>
+        
+        <div class="section" id="schedule-config-section">
+            <h2>Schedule Config</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Max Periods</th>
+                        <th>Lunch Breaks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="schedule-config-list"></tbody>
+            </table>
+            <button id="add-schedule-config">Add Day</button>
+        </div>
         
         <button id="save-config">Save Config</button>
         <button id="generateButton">Generate Timetables</button>
@@ -64,6 +98,8 @@
                 config = await response.json();
                 renderTeachers();
                 renderClasses();
+                renderTimeGrant();
+                renderScheduleConfig();
             } catch (error) {
                 console.error("Error loading config:", error);
             }
@@ -126,6 +162,71 @@
             renderClasses();
         }
 
+        function renderTimeGrant() {
+            const list = document.getElementById("time-grant-list");
+            list.innerHTML = "";
+            Object.keys(config.time_grant["1"]).forEach(subject => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td><input type="text" value="${subject}" onchange="updateTimeGrantSubject('${subject}', this.value)"></td>
+                    ${Object.keys(config.time_grant).map(grade => 
+                        `<td><input type='number' value='${config.time_grant[grade][subject] || 0}' onchange='updateTimeGrant("${grade}", "${subject}", this.value)'></td>`
+                    ).join("")}
+                    <td><button onclick="removeTimeGrant('${subject}')">Remove</button></td>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        function updateTimeGrant(grade, subject, value) {
+            config.time_grant[grade][subject] = parseInt(value) || 0;
+        }
+
+        function updateTimeGrantSubject(oldSubject, newSubject) {
+            Object.keys(config.time_grant).forEach(grade => {
+                config.time_grant[grade][newSubject] = config.time_grant[grade][oldSubject];
+                delete config.time_grant[grade][oldSubject];
+            });
+            renderTimeGrant();
+        }
+
+        function removeTimeGrant(subject) {
+            Object.keys(config.time_grant).forEach(grade => {
+                delete config.time_grant[grade][subject];
+            });
+            renderTimeGrant();
+        }
+
+        function renderScheduleConfig() {
+            const list = document.getElementById("schedule-config-list");
+            list.innerHTML = "";
+            Object.keys(config.schedule_config).forEach(day => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td><input type="text" value="${day}" onchange="updateScheduleDay('${day}', this.value)"></td>
+                    <td><input type="number" value="${config.schedule_config[day].max_periods}" onchange="updateSchedule('${day}', 'max_periods', this.value)"></td>
+                    <td><input type="text" value="${config.schedule_config[day].lunch_breaks.join(', ')}" onchange="updateSchedule('${day}', 'lunch_breaks', this.value.split(',').map(Number))"></td>
+                    <td><button onclick="removeScheduleConfig('${day}')">Remove</button></td>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        function updateSchedule(day, field, value) {
+            config.schedule_config[day][field] = value;
+        }
+
+        function updateScheduleDay(oldDay, newDay) {
+            config.schedule_config[newDay] = config.schedule_config[oldDay];
+            delete config.schedule_config[oldDay];
+            renderScheduleConfig();
+        }
+
+        function removeScheduleConfig(day) {
+            delete config.schedule_config[day];
+            renderScheduleConfig();
+        }
+
         async function saveConfig() {
             try {
                 const response = await fetch("/save-config", {
@@ -143,7 +244,21 @@
 
         document.getElementById("add-teacher").addEventListener("click", addTeacher);
         document.getElementById("add-class").addEventListener("click", addClass);
+
+        document.getElementById("add-time-grant").addEventListener("click", () => {
+            Object.keys(config.time_grant).forEach(grade => {
+                config.time_grant[grade]["New Subject"] = 0;
+            });
+            renderTimeGrant();
+        });
+
+        document.getElementById("add-schedule-config").addEventListener("click", () => {
+            config.schedule_config["New Day"] = { max_periods: 0, lunch_breaks: [] };
+            renderScheduleConfig();
+        });
+
         document.getElementById("save-config").addEventListener("click", saveConfig);
+
         document.getElementById("generateButton").addEventListener("click", function() {
             fetch("/generate")
                 .then(response => response.json())
@@ -155,7 +270,7 @@
                     document.getElementById("status").textContent = "Failed to generate timetables.";
                 });
         });
-
+        
         loadConfig();
     </script>
 </body>
