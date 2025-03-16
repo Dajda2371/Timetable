@@ -32,6 +32,7 @@ def generate_timetable(config):
                     subject_teachers.setdefault(class_name, {})[subject] = random.choice(available_teachers)
     
     class_lunch_schedules = {cls["class_name"]: set() for cls in classes}
+    teacher_lunch_schedules = {teacher: set() for teacher in teachers}
     
     for day, config in schedule_config.items():
         max_periods = config["max_periods"]
@@ -44,6 +45,13 @@ def generate_timetable(config):
         for i, lunch_period in enumerate(lunch_breaks):
             for j in range(i, len(class_list), len(lunch_breaks)):
                 class_lunch_schedules[class_list[j]].add(lunch_period)
+        
+        # Distribute lunch breaks evenly across teachers
+        teacher_list = list(teachers.keys())
+        random.shuffle(teacher_list)
+        for i, lunch_period in enumerate(lunch_breaks):
+            for j in range(i, len(teacher_list), len(lunch_breaks)):
+                teacher_lunch_schedules[teacher_list[j]].add(lunch_period)
         
         for period in range(1, max_periods + 1):
             available_teachers = set(teachers.keys())
@@ -63,7 +71,7 @@ def generate_timetable(config):
                 subject = random.choice(subjects_needed)
                 teacher = subject_teachers[class_name][subject]
                 
-                if teacher not in available_teachers:
+                if teacher not in available_teachers or period in teacher_lunch_schedules[teacher]:
                     continue
                 
                 timetable[teacher].setdefault(day, {})[period] = {"class": class_name, "subject": subject}
