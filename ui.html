@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Config Editor</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        .section { margin-bottom: 20px; }
+        input, select { margin: 5px 0; padding: 8px; width: 100%; }
+        button { padding: 10px; background: blue; color: white; border: none; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Config Editor</h1>
+        
+        <div class="section" id="teachers-section">
+            <h2>Teachers</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Subjects</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="teachers-list"></tbody>
+            </table>
+            <button onclick="addTeacher()">Add Teacher</button>
+        </div>
+
+        <div class="section" id="classes-section">
+            <h2>Classes</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Grade</th>
+                        <th>Class Name</th>
+                        <th>Class Teacher</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="classes-list"></tbody>
+            </table>
+            <button onclick="addClass()">Add Class</button>
+        </div>
+        
+        <button onclick="saveConfig()">Save Config</button>
+    </div>
+    
+    <script>
+        let config = {};
+
+        async function loadConfig() {
+            const response = await fetch("config.json");
+            config = await response.json();
+            renderTeachers();
+            renderClasses();
+        }
+
+        function renderTeachers() {
+            const teachersList = document.getElementById("teachers-list");
+            teachersList.innerHTML = "";
+            config.teachers.forEach((teacher, index) => {
+                teachersList.innerHTML += `
+                    <tr>
+                        <td><input value="${teacher.name}" onchange="updateTeacher(${index}, 'name', this.value)"></td>
+                        <td><input value="${teacher.subjects.join(', ')}" onchange="updateTeacher(${index}, 'subjects', this.value.split(', '))"></td>
+                        <td><button onclick="removeTeacher(${index})">Remove</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function addTeacher() {
+            config.teachers.push({ name: "", subjects: [] });
+            renderTeachers();
+        }
+
+        function updateTeacher(index, field, value) {
+            config.teachers[index][field] = value;
+        }
+
+        function removeTeacher(index) {
+            config.teachers.splice(index, 1);
+            renderTeachers();
+        }
+
+        function renderClasses() {
+            const classesList = document.getElementById("classes-list");
+            classesList.innerHTML = "";
+            config.classes.forEach((cls, index) => {
+                classesList.innerHTML += `
+                    <tr>
+                        <td><input value="${cls.grade}" onchange="updateClass(${index}, 'grade', this.value)"></td>
+                        <td><input value="${cls.class_name}" onchange="updateClass(${index}, 'class_name', this.value)"></td>
+                        <td><input value="${cls.class_teacher}" onchange="updateClass(${index}, 'class_teacher', this.value)"></td>
+                        <td><button onclick="removeClass(${index})">Remove</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function addClass() {
+            config.classes.push({ grade: "", class_name: "", class_teacher: "" });
+            renderClasses();
+        }
+
+        function updateClass(index, field, value) {
+            config.classes[index][field] = value;
+        }
+
+        function removeClass(index) {
+            config.classes.splice(index, 1);
+            renderClasses();
+        }
+
+        function saveConfig() {
+            console.log(JSON.stringify(config, null, 2));
+        }
+
+        loadConfig();
+    </script>
+</body>
+</html>
