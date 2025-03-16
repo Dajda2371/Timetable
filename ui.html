@@ -30,7 +30,7 @@
                 </thead>
                 <tbody id="teachers-list"></tbody>
             </table>
-            <button onclick="addTeacher()">Add Teacher</button>
+            <button id="add-teacher">Add Teacher</button>
         </div>
 
         <div class="section" id="classes-section">
@@ -46,33 +46,38 @@
                 </thead>
                 <tbody id="classes-list"></tbody>
             </table>
-            <button onclick="addClass()">Add Class</button>
+            <button id="add-class">Add Class</button>
         </div>
         
-        <button onclick="saveConfig()">Save Config</button>
+        <button id="save-config">Save Config</button>
     </div>
     
     <script>
         let config = {};
 
         async function loadConfig() {
-            const response = await fetch("config.json");
-            config = await response.json();
-            renderTeachers();
-            renderClasses();
+            try {
+                const response = await fetch("config.json");
+                if (!response.ok) throw new Error("Failed to load config.json");
+                config = await response.json();
+                renderTeachers();
+                renderClasses();
+            } catch (error) {
+                console.error("Error loading config:", error);
+            }
         }
 
         function renderTeachers() {
             const teachersList = document.getElementById("teachers-list");
             teachersList.innerHTML = "";
             config.teachers.forEach((teacher, index) => {
-                teachersList.innerHTML += `
-                    <tr>
-                        <td><input value="${teacher.name}" onchange="updateTeacher(${index}, 'name', this.value)"></td>
-                        <td><input value="${teacher.subjects.join(', ')}" onchange="updateTeacher(${index}, 'subjects', this.value.split(', '))"></td>
-                        <td><button onclick="removeTeacher(${index})">Remove</button></td>
-                    </tr>
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td><input type="text" value="${teacher.name}" onchange="updateTeacher(${index}, 'name', this.value)"></td>
+                    <td><input type="text" value="${teacher.subjects.join(', ')}" onchange="updateTeacher(${index}, 'subjects', this.value.split(', '))"></td>
+                    <td><button onclick="removeTeacher(${index})">Remove</button></td>
                 `;
+                teachersList.appendChild(row);
             });
         }
 
@@ -94,14 +99,14 @@
             const classesList = document.getElementById("classes-list");
             classesList.innerHTML = "";
             config.classes.forEach((cls, index) => {
-                classesList.innerHTML += `
-                    <tr>
-                        <td><input value="${cls.grade}" onchange="updateClass(${index}, 'grade', this.value)"></td>
-                        <td><input value="${cls.class_name}" onchange="updateClass(${index}, 'class_name', this.value)"></td>
-                        <td><input value="${cls.class_teacher}" onchange="updateClass(${index}, 'class_teacher', this.value)"></td>
-                        <td><button onclick="removeClass(${index})">Remove</button></td>
-                    </tr>
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td><input type="text" value="${cls.grade}" onchange="updateClass(${index}, 'grade', this.value)"></td>
+                    <td><input type="text" value="${cls.class_name}" onchange="updateClass(${index}, 'class_name', this.value)"></td>
+                    <td><input type="text" value="${cls.class_teacher}" onchange="updateClass(${index}, 'class_teacher', this.value)"></td>
+                    <td><button onclick="removeClass(${index})">Remove</button></td>
                 `;
+                classesList.appendChild(row);
             });
         }
 
@@ -120,8 +125,13 @@
         }
 
         function saveConfig() {
-            console.log(JSON.stringify(config, null, 2));
+            console.log("Saving config:", JSON.stringify(config, null, 2));
+            alert("Changes saved to console. Implement file saving logic on backend.");
         }
+
+        document.getElementById("add-teacher").addEventListener("click", addTeacher);
+        document.getElementById("add-class").addEventListener("click", addClass);
+        document.getElementById("save-config").addEventListener("click", saveConfig);
 
         loadConfig();
     </script>
