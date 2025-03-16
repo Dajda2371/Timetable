@@ -1,8 +1,12 @@
+import webbrowser
 import json
 import random
 import http.server
 import platform
 import socketserver
+
+def run_ui():
+    webbrowser.open("http://localhost:8000/ui.html")
 
 def load_config(file_path):
     with open(file_path, "r") as f:
@@ -116,5 +120,6 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
 PORT = 8000
 with socketserver.TCPServer(("", PORT), RequestHandler) as httpd:
+    run_ui()
     print(f"Serving at port {PORT}")
     httpd.serve_forever()
