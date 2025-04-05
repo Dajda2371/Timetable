@@ -53,10 +53,8 @@
             <h2>Time Grant</h2>
             <table>
                 <thead>
-                    <tr>
-                        <th>Subject</th>
-                        <th id="grades-header"></th>
-                        <th>Actions</th>
+                    <tr id="time-grant-header-row">
+                        <!-- Dynamic headers go here -->
                     </tr>
                 </thead>
                 <tbody id="time-grant-list"></tbody>
@@ -174,12 +172,15 @@
 
         function renderTimeGrant() {
             const list = document.getElementById("time-grant-list");
-            const gradesHeader = document.getElementById("grades-header");
+            const headerRow = document.getElementById("time-grant-header-row");
             list.innerHTML = "";
-            
+
             const grades = Object.keys(config.time_grant);
-            gradesHeader.innerHTML = grades.map(grade => `<th>Grade ${grade}</th>`).join("");
-            gradesHeader.colSpan = grades.length; // Ensure correct column width
+            
+            // Generate header row with one <th> per grade
+            headerRow.innerHTML = `<th>Subject</th>` +
+                grades.map(grade => `<th>Grade ${grade}</th>`).join("") +
+                `<th>Actions</th>`;
 
             const subjects = new Set();
             grades.forEach(grade => {
@@ -292,7 +293,7 @@
                     document.getElementById("status").textContent = "Failed to generate timetables.";
                 });
         });
-        
+
         loadConfig();
     </script>
 </body>
