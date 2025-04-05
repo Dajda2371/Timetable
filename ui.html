@@ -149,10 +149,17 @@
     renderTimeGrant();
 }
 
-        function updateClass(index, field, value) {
-            config.classes[index][field] = value;
-            renderTimeGrant();
+function updateClass(index, field, value) {
+    config.classes[index][field] = value;
+
+    if (field === "grade") {
+        const grade = value;
+        if (!config.time_grant[grade]) {
+            config.time_grant[grade] = {};
         }
+        renderTimeGrant();
+    }
+}
 
         function removeClass(index) {
             const grade = config.classes[index].grade;

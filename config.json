@@ -180,16 +180,6 @@
             "grade": 5,
             "class_name": "NewClass5",
             "class_teacher": "Mr. Roberts"
-        },
-        {
-            "grade": "6",
-            "class_name": "aaa",
-            "class_teacher": "aaa"
-        },
-        {
-            "grade": "3",
-            "class_name": "aaaaa",
-            "class_teacher": "aaaaa"
         }
     ],
     "time_grant": {
