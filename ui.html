@@ -144,19 +144,10 @@
         }
 
         function addClass() {
-            const newGrade = prompt("Enter grade:");
-            const newClass = `NewClass${newGrade}`;
-            const newTeacher = prompt("Enter class teacher:");
-
-            config.classes.push({ grade: "", class_name: "", class_teacher: "" });
-
-            if (!config.time_grant[newGrade]) {
-                config.time_grant[newGrade] = {};
-            }
-
-            renderClasses();
-            renderTimeGrant();
-        }
+    config.classes.push({ grade: "", class_name: "", class_teacher: "" });
+    renderClasses();
+    renderTimeGrant();
+}
 
         function updateClass(index, field, value) {
             config.classes[index][field] = value;
