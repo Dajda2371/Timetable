@@ -55,10 +55,7 @@
                 <thead>
                     <tr>
                         <th>Subject</th>
-                        <th>Grade 1</th>
-                        <th>Grade 2</th>
-                        <th>Grade 3</th>
-                        <th>Grade 4</th>
+                        <th id="grades-header"></th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -66,7 +63,7 @@
             </table>
             <button id="add-time-grant">Add Subject</button>
         </div>
-        
+
         <div class="section" id="schedule-config-section">
             <h2>Schedule Config</h2>
             <table>
@@ -139,7 +136,7 @@
             config.classes.forEach((cls, index) => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td><input type="text" value="${cls.grade}" onchange="updateClass(${index}, 'grade', this.value)"></td>
+                    <td><input type="number" value="${cls.grade}" onchange="updateClass(${index}, 'grade', this.value)"></td>
                     <td><input type="text" value="${cls.class_name}" onchange="updateClass(${index}, 'class_name', this.value)"></td>
                     <td><input type="text" value="${cls.class_teacher}" onchange="updateClass(${index}, 'class_teacher', this.value)"></td>
                     <td><button onclick="removeClass(${index})">Remove</button></td>
@@ -149,29 +146,54 @@
         }
 
         function addClass() {
+            const newGrade = prompt("Enter grade:");
+            const newClass = `NewClass${newGrade}`;
+            const newTeacher = prompt("Enter class teacher:");
+
             config.classes.push({ grade: "", class_name: "", class_teacher: "" });
+
+            if (!config.time_grant[newGrade]) {
+                config.time_grant[newGrade] = {};
+            }
+
             renderClasses();
+            renderTimeGrant();
         }
 
         function updateClass(index, field, value) {
             config.classes[index][field] = value;
+            renderTimeGrant();
         }
 
         function removeClass(index) {
+            const grade = config.classes[index].grade;
             config.classes.splice(index, 1);
             renderClasses();
+            renderTimeGrant();
         }
 
         function renderTimeGrant() {
             const list = document.getElementById("time-grant-list");
+            const gradesHeader = document.getElementById("grades-header");
             list.innerHTML = "";
-            Object.keys(config.time_grant["1"]).forEach(subject => {
+            
+            const grades = Object.keys(config.time_grant);
+            gradesHeader.innerHTML = grades.map(grade => `<th>Grade ${grade}</th>`).join("");
+            gradesHeader.colSpan = grades.length; // Ensure correct column width
+
+            const subjects = new Set();
+            grades.forEach(grade => {
+                Object.keys(config.time_grant[grade]).forEach(subject => subjects.add(subject));
+            });
+
+            subjects.forEach(subject => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td><input type="text" value="${subject}" onchange="updateTimeGrantSubject('${subject}', this.value)"></td>
-                    ${Object.keys(config.time_grant).map(grade => 
-                        `<td><input type='number' value='${config.time_grant[grade][subject] || 0}' onchange='updateTimeGrant("${grade}", "${subject}", this.value)'></td>`
-                    ).join("")}
+                    ${grades.map(grade => `
+                        <td><input type='number' value='${config.time_grant[grade][subject] || 0}' 
+                        onchange='updateTimeGrant("${grade}", "${subject}", this.value)'></td>
+                    `).join("")}
                     <td><button onclick="removeTimeGrant('${subject}')">Remove</button></td>
                 `;
                 list.appendChild(row);
