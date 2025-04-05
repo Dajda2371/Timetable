@@ -220,6 +220,20 @@
             renderTimeGrant();
         }
 
+        function removeClass(index) {
+            const removedGrade = config.classes[index].grade;
+            config.classes.splice(index, 1);
+
+            // Check if any class with this grade remains
+            const gradeStillExists = config.classes.some(cls => cls.grade == removedGrade);
+            if (!gradeStillExists) {
+                delete config.time_grant[removedGrade];
+            }
+
+            renderClasses();
+            renderTimeGrant();
+        }
+
         function renderScheduleConfig() {
             const list = document.getElementById("schedule-config-list");
             list.innerHTML = "";
