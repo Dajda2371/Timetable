@@ -126,6 +126,7 @@
                 const isEmptyConfig = Object.values(loadedConfig).every(
                     (value) => Array.isArray(value) && value.length === 0 || Object.keys(value).length === 0
                 );
+console.log(isEmptyConfig)
 
                 if (isEmptyConfig) {
                     console.log("empty config")
@@ -358,6 +359,17 @@
                 });
                 const data = await response.json();
                 document.getElementById("status").textContent = data.message;
+
+                // Check if the config is now empty and show the button if so
+                const isEmptyConfig = Object.values(config).every(
+                    (value) => Array.isArray(value) && value.length === 0 || Object.keys(value).length === 0
+                );
+                if (isEmptyConfig) {
+                    exampleConfigButton.style.display = "block";
+                } else {
+                    exampleConfigButton.style.display = "none";
+                }
+                renderAll();
             } catch (error) {
                 console.error("Error saving config:", error);
                 document.getElementById("status").textContent = "Failed to save config.";
