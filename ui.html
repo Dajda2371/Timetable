@@ -12,11 +12,21 @@
         button { padding: 10px; background: blue; color: white; border: none; cursor: pointer; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        #example-config-button {
+            display: none; /* Initially hidden */
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: green;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Config Editor</h1>
+        <button id="example-config-button">Use Example Config</button>
         
         <div class="section" id="teachers-section">
             <h2>Teachers</h2>
@@ -85,40 +95,79 @@
     
     <script>
         let config = {};
+        const exampleConfigButton = document.getElementById("example-config-button");
 
         async function loadConfig() {
-    try {
-        const response = await fetch("/config");
-        if (!response.ok) throw new Error("Failed to load config");
+            try {
+                const response = await fetch("/config");
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        // Config file not found, show the example config button
+                        exampleConfigButton.style.display = "block";
+                        config = {
+                            teachers: [],
+                            classes: [],
+                            time_grant: {},
+                            schedule_config: {}
+                        };
+                        renderTeachers();
+                        renderClasses();
+                        renderTimeGrant();
+                        renderScheduleConfig();
+                        return;
+                    }
+                    throw new Error("Failed to load config");
+                }
 
-        const loaded = await response.json();
+                const loaded = await response.json();
 
-        // Fallback if server returned null/undefined
-        config = {
-            teachers: loaded.teachers || [],
-            classes: loaded.classes || [],
-            time_grant: loaded.time_grant || {},
-            schedule_config: loaded.schedule_config || {}
-        };
+                // Fallback if server returned null/undefined
+                config = {
+                    teachers: loaded.teachers || [],
+                    classes: loaded.classes || [],
+                    time_grant: loaded.time_grant || {},
+                    schedule_config: loaded.schedule_config || {}
+                };
 
-        renderTeachers();
-        renderClasses();
-        renderTimeGrant();
-        renderScheduleConfig();
-    } catch (error) {
-        console.error("Error loading config:", error);
-        config = {
-            teachers: [],
-            classes: [],
-            time_grant: {},
-            schedule_config: {}
-        };
-        renderTeachers();
-        renderClasses();
-        renderTimeGrant();
-        renderScheduleConfig();
-    }
-}
+                renderTeachers();
+                renderClasses();
+                renderTimeGrant();
+                renderScheduleConfig();
+                exampleConfigButton.style.display = "none"; // Hide the button if config is loaded
+            } catch (error) {
+                console.error("Error loading config:", error);
+                config = {
+                    teachers: [],
+                    classes: [],
+                    time_grant: {},
+                    schedule_config: {}
+                };
+                renderTeachers();
+                renderClasses();
+                renderTimeGrant();
+                renderScheduleConfig();
+                exampleConfigButton.style.display = "block"; // Show the button if there's an error
+            }
+        }
+
+        async function loadExampleConfig() {
+            try {
+                const response = await fetch("/example-config");
+                if (!response.ok) throw new Error("Failed to load example config");
+                const exampleConfig = await response.json();
+                config = exampleConfig;
+                await saveConfig();
+                exampleConfigButton.style.display = "none";
+                renderTeachers();
+                renderClasses();
+                renderTimeGrant();
+                renderScheduleConfig();
+                document.getElementById("status").textContent = "Example config loaded and saved.";
+            } catch (error) {
+                console.error("Error loading example config:", error);
+                document.getElementById("status").textContent = "Failed to load example config.";
+            }
+        }
 
         function renderTeachers() {
             const teachersList = document.getElementById("teachers-list");
@@ -164,33 +213,33 @@
         }
 
         function addClass() {
-    config.classes.push({ grade: "", class_name: "", class_teacher: "" });
-    renderClasses();
-    renderTimeGrant();
-}
-
-function updateClass(index, field, value) {
-    const oldGrade = config.classes[index].grade;
-
-    config.classes[index][field] = value;
-
-    if (field === "grade") {
-        const newGrade = value;
-
-        // Create new grade in time_grant if needed
-        if (!config.time_grant[newGrade]) {
-            config.time_grant[newGrade] = {};
+            config.classes.push({ grade: "", class_name: "", class_teacher: "" });
+            renderClasses();
+            renderTimeGrant();
         }
 
-        // Check if old grade is still used
-        const oldGradeStillUsed = config.classes.some((cls, i) => i !== index && cls.grade == oldGrade);
-        if (!oldGradeStillUsed) {
-            delete config.time_grant[oldGrade];
-        }
+        function updateClass(index, field, value) {
+            const oldGrade = config.classes[index].grade;
 
-        renderTimeGrant();
-    }
-}
+            config.classes[index][field] = value;
+
+            if (field === "grade") {
+                const newGrade = value;
+
+                // Create new grade in time_grant if needed
+                if (!config.time_grant[newGrade]) {
+                    config.time_grant[newGrade] = {};
+                }
+
+                // Check if old grade is still used
+                const oldGradeStillUsed = config.classes.some((cls, i) => i !== index && cls.grade == oldGrade);
+                if (!oldGradeStillUsed) {
+                    delete config.time_grant[oldGrade];
+                }
+
+                renderTimeGrant();
+            }
+        }
 
         function removeClass(index) {
             const grade = config.classes[index].grade;
@@ -205,7 +254,7 @@ function updateClass(index, field, value) {
             list.innerHTML = "";
 
             const grades = Object.keys(config.time_grant);
-            
+
             // Generate header row with one <th> per grade
             headerRow.innerHTML = `<th>Subject</th>` +
                 grades.map(grade => `<th>Grade ${grade}</th>`).join("") +
@@ -336,6 +385,8 @@ function updateClass(index, field, value) {
                     document.getElementById("status").textContent = "Failed to generate timetables.";
                 });
         });
+
+        exampleConfigButton.addEventListener("click", loadExampleConfig);
 
         loadConfig();
     </script>

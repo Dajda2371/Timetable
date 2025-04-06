@@ -4,7 +4,9 @@ import random
 import http.server
 import platform
 import socketserver
+import os
 
+EXAMPLE_CONFIG_FILE = "data/example_config.json"
 CONFIG_FILE = "config.json"
 TIMETABLE_FILE = "data/timetable.json"
 
@@ -99,6 +101,12 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         # Handles GET requests for fetching config and generating timetable.
         if self.path == "/config":
+            if not os.path.exists(CONFIG_FILE):
+                self.send_response(404)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"message": "Config file not found."}).encode())
+                return
             try:
                 config = load_config()
                 self.send_response(200)
@@ -107,6 +115,18 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps(config).encode())
             except Exception as e:
                 self.send_error(500, "Error loading config: " + str(e))
+        elif self.path == "/example-config":
+            try:
+                with open(EXAMPLE_CONFIG_FILE, "r") as f:
+                    example_config = json.load(f)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(example_config).encode())
+            except FileNotFoundError:
+                self.send_error(404, "Example config file not found.")
+            except Exception as e:
+                self.send_error(500, "Error loading example config: " + str(e))
 
         elif self.path == "/generate":
             try:
