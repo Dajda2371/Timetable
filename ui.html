@@ -150,13 +150,24 @@
 }
 
 function updateClass(index, field, value) {
+    const oldGrade = config.classes[index].grade;
+
     config.classes[index][field] = value;
 
     if (field === "grade") {
-        const grade = value;
-        if (!config.time_grant[grade]) {
-            config.time_grant[grade] = {};
+        const newGrade = value;
+
+        // Create new grade in time_grant if needed
+        if (!config.time_grant[newGrade]) {
+            config.time_grant[newGrade] = {};
         }
+
+        // Check if old grade is still used
+        const oldGradeStillUsed = config.classes.some((cls, i) => i !== index && cls.grade == oldGrade);
+        if (!oldGradeStillUsed) {
+            delete config.time_grant[oldGrade];
+        }
+
         renderTimeGrant();
     }
 }
