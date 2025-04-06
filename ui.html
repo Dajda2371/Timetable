@@ -87,18 +87,38 @@
         let config = {};
 
         async function loadConfig() {
-            try {
-                const response = await fetch("/config");
-                if (!response.ok) throw new Error("Failed to load config");
-                config = await response.json();
-                renderTeachers();
-                renderClasses();
-                renderTimeGrant();
-                renderScheduleConfig();
-            } catch (error) {
-                console.error("Error loading config:", error);
-            }
-        }
+    try {
+        const response = await fetch("/config");
+        if (!response.ok) throw new Error("Failed to load config");
+
+        const loaded = await response.json();
+
+        // Fallback if server returned null/undefined
+        config = {
+            teachers: loaded.teachers || [],
+            classes: loaded.classes || [],
+            time_grant: loaded.time_grant || {},
+            schedule_config: loaded.schedule_config || {}
+        };
+
+        renderTeachers();
+        renderClasses();
+        renderTimeGrant();
+        renderScheduleConfig();
+    } catch (error) {
+        console.error("Error loading config:", error);
+        config = {
+            teachers: [],
+            classes: [],
+            time_grant: {},
+            schedule_config: {}
+        };
+        renderTeachers();
+        renderClasses();
+        renderTimeGrant();
+        renderScheduleConfig();
+    }
+}
 
         function renderTeachers() {
             const teachersList = document.getElementById("teachers-list");

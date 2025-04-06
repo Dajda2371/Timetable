@@ -13,9 +13,22 @@ def run_ui():
     webbrowser.open("http://localhost:8000/ui.html")
 
 def load_config():
-    # Loads the configuration from the JSON file.
-    with open(CONFIG_FILE, "r") as f:
-        return json.load(f)
+    # Returns default config if the file is missing or empty/invalid.
+    default_config = {
+        "teachers": [],
+        "classes": [],
+        "time_grant": {},
+        "schedule_config": {}
+    }
+
+    try:
+        with open(CONFIG_FILE, "r") as f:
+            data = f.read()
+            if not data.strip():
+                return default_config  # File is empty
+            return json.loads(data)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return default_config
 
 def save_config(data):
     # Saves the updated configuration to the JSON file.
