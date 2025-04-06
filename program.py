@@ -7,8 +7,9 @@ import socketserver
 import os
 
 EXAMPLE_CONFIG_FILE = "data/example_config.json"
-CONFIG_FILE = "config.json"
+CONFIG_FILE = "data/config.json"
 TIMETABLE_FILE = "data/timetable.json"
+DATA_DIRECTORY = "data"
 
 def run_ui():
     # Opens the UI in a web browser.
@@ -34,6 +35,8 @@ def load_config():
 
 def save_config(data):
     # Saves the updated configuration to the JSON file.
+    # Ensure the 'data' directory exists
+    os.makedirs(os.path.dirname(CONFIG_FILE), exist_ok=True)
     with open(CONFIG_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
@@ -158,6 +161,11 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(500, "Error generating timetable: " + str(e))
 
         else:
+            # Serve files from the data directory if they are not in the root
+            if not os.path.exists(self.path[1:]):
+                self.path = os.path.join(DATA_DIRECTORY, self.path[1:])
+                if os.path.isdir(self.path):
+                    self.path = os.path.join(self.path, "index.html")
             super().do_GET()
 
     def do_POST(self):
@@ -176,6 +184,9 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                 print("Config updated successfully.")
             except Exception as e:
                 self.send_error(500, "Error saving config: " + str(e))
+
+# Change the directory before starting the server
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 PORT = 8000
 with socketserver.TCPServer(("", PORT), RequestHandler) as httpd:
