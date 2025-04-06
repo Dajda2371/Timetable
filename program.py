@@ -27,7 +27,7 @@ def load_config():
         with open(CONFIG_FILE, "r") as f:
             data = f.read()
             if not data.strip():
-                return default_config  # File is empty
+                return None  # Return None if the file is empty
             return json.loads(data)
     except (FileNotFoundError, json.JSONDecodeError):
         return default_config
@@ -110,6 +110,13 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                 return
             try:
                 config = load_config()
+                if config is None:
+                    print("config file is empty")
+                    self.send_response(404)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"message": "Config file is empty."}).encode())
+                    return
                 print("config file loaded")
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
@@ -175,3 +182,4 @@ with socketserver.TCPServer(("", PORT), RequestHandler) as httpd:
     run_ui()
     print(f"Server running at http://localhost:{PORT}")
     httpd.serve_forever()
+    print("Server stopped.")
