@@ -111,10 +111,7 @@
                             time_grant: {},
                             schedule_config: {}
                         };
-                        renderTeachers();
-                        renderClasses();
-                        renderTimeGrant();
-                        renderScheduleConfig();
+                        renderAll();
                         return;
                     }
                     throw new Error("Failed to load config");
@@ -126,7 +123,7 @@
                 const isEmptyConfig = Object.values(loadedConfig).every(
                     (value) => Array.isArray(value) && value.length === 0 || Object.keys(value).length === 0
                 );
-console.log(isEmptyConfig)
+                console.log(isEmptyConfig)
 
                 if (isEmptyConfig) {
                     console.log("empty config")
@@ -136,10 +133,7 @@ console.log(isEmptyConfig)
                     config = loadedConfig;
                 }
 
-                renderTeachers();
-                renderClasses();
-                renderTimeGrant();
-                renderScheduleConfig();
+                renderAll();
                 exampleConfigButton.style.display = "none"; // Hide the button if config is loaded
             } catch (error) {
                 console.error("Error loading config:", error);
@@ -150,10 +144,7 @@ console.log(isEmptyConfig)
                     time_grant: {},
                     schedule_config: {}
                 };
-                renderTeachers();
-                renderClasses();
-                renderTimeGrant();
-                renderScheduleConfig();
+                renderAll();
                 exampleConfigButton.style.display = "block"; // Show the button if there's an error
             }
         }
@@ -166,15 +157,18 @@ console.log(isEmptyConfig)
                 config = exampleConfig;
                 await saveConfig();
                 exampleConfigButton.style.display = "none";
-                renderTeachers();
-                renderClasses();
-                renderTimeGrant();
-                renderScheduleConfig();
+                renderAll();
                 document.getElementById("status").textContent = "Example config loaded and saved.";
             } catch (error) {
                 console.error("Error loading example config:", error);
                 document.getElementById("status").textContent = "Failed to load example config.";
             }
+        }
+        function renderAll() {
+            renderTeachers();
+            renderClasses();
+            renderTimeGrant();
+            renderScheduleConfig();
         }
 
         function renderTeachers() {
@@ -359,7 +353,7 @@ console.log(isEmptyConfig)
                 });
                 const data = await response.json();
                 document.getElementById("status").textContent = data.message;
-
+                
                 // Check if the config is now empty and show the button if so
                 const isEmptyConfig = Object.values(config).every(
                     (value) => Array.isArray(value) && value.length === 0 || Object.keys(value).length === 0
