@@ -102,6 +102,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
         # Handles GET requests for fetching config and generating timetable.
         if self.path == "/config":
             if not os.path.exists(CONFIG_FILE):
+                print("config file not found")
                 self.send_response(404)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
@@ -109,6 +110,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                 return
             try:
                 config = load_config()
+                print("config file loaded")
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()

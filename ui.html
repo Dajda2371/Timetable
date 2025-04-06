@@ -102,6 +102,7 @@
                 const response = await fetch("/config");
                 if (!response.ok) {
                     if (response.status === 404) {
+                        console.log("404 error")
                         // Config file not found, show the example config button
                         exampleConfigButton.style.display = "block";
                         config = {
@@ -119,15 +120,20 @@
                     throw new Error("Failed to load config");
                 }
 
-                const loaded = await response.json();
+                const loadedConfig = await response.json();
+                
+                // Check if the loaded config is empty or contains only empty data
+                const isEmptyConfig = Object.values(loadedConfig).every(
+                    (value) => Array.isArray(value) && value.length === 0 || Object.keys(value).length === 0
+                );
 
-                // Fallback if server returned null/undefined
-                config = {
-                    teachers: loaded.teachers || [],
-                    classes: loaded.classes || [],
-                    time_grant: loaded.time_grant || {},
-                    schedule_config: loaded.schedule_config || {}
-                };
+                if (isEmptyConfig) {
+                    console.log("empty config")
+                    exampleConfigButton.style.display = "block";
+                } else {
+                    console.log("config loaded")
+                    config = loadedConfig;
+                }
 
                 renderTeachers();
                 renderClasses();
@@ -136,6 +142,7 @@
                 exampleConfigButton.style.display = "none"; // Hide the button if config is loaded
             } catch (error) {
                 console.error("Error loading config:", error);
+                console.log("error")
                 config = {
                     teachers: [],
                     classes: [],
