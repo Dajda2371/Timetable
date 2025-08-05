@@ -6,10 +6,16 @@ import platform
 import socketserver
 import os
 
-EXAMPLE_CONFIG_FILE = "data/example_config.json"
-CONFIG_FILE = "data/config.json"
-TIMETABLE_FILE = "data/timetable.json"
-DATA_DIRECTORY = "data"
+if os.name == "nt":
+    EXAMPLE_CONFIG_FILE = "data\\example_config.json"
+    CONFIG_FILE = "data\\config.json"
+    TIMETABLE_FILE = "data\\timetable.json"
+    DATA_DIRECTORY = "data"
+else:
+    EXAMPLE_CONFIG_FILE = "data/example_config.json"
+    CONFIG_FILE = "data/config.json"
+    TIMETABLE_FILE = "data/timetable.json"
+    DATA_DIRECTORY = "data"
 
 def run_ui():
     # Opens the UI in a web browser.
