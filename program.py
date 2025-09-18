@@ -47,7 +47,6 @@ def save_config(data):
         json.dump(data, f, indent=4)
 
 def generate_timetable(config):
-    # Generates a random timetable based on the config data.
     teachers = {t["name"]: t["subjects"] for t in config["teachers"]}
     classes = config["classes"]
     time_grant = config["time_grant"]
@@ -72,12 +71,26 @@ def generate_timetable(config):
                 if available_teachers:
                     subject_teachers.setdefault(class_name, {})[subject] = random.choice(available_teachers)
 
-    for day, config in schedule_config.items():
-        max_periods = config["max_periods"]
-        lunch_breaks = config["lunch_breaks"]
+    for day, config_day in schedule_config.items():
+        max_periods = config_day["max_periods"]
+        lunch_breaks = config_day.get("lunch_breaks", [])
+
+        # Only generate lunch break if lunch_breaks is not empty/null
+        if lunch_breaks:
+            lunch_period = random.choice(lunch_breaks)
+        else:
+            lunch_period = None
+
         available_classes = set(cls["class_name"] for cls in classes)
 
         for period in range(1, max_periods + 1):
+            if lunch_breaks and period in lunch_breaks:
+                if period == lunch_period:
+                    # Skip writing the lunch period entirely
+                    continue
+                # For other lunch_breaks periods, skip as well
+                continue
+
             available_teachers = set(teachers.keys())
 
             for cls in classes:
