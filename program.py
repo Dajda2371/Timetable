@@ -75,20 +75,14 @@ def generate_timetable(config):
         max_periods = config_day["max_periods"]
         lunch_breaks = config_day.get("lunch_breaks", [])
 
-        # Only generate lunch break if lunch_breaks is not empty/null
-        if lunch_breaks:
-            lunch_period = random.choice(lunch_breaks)
-        else:
-            lunch_period = None
+        # Only one lunch break per day, randomly chosen from lunch_breaks
+        lunch_period = random.choice(lunch_breaks) if lunch_breaks else None
 
         available_classes = set(cls["class_name"] for cls in classes)
 
         for period in range(1, max_periods + 1):
-            if lunch_breaks and period in lunch_breaks:
-                if period == lunch_period:
-                    # Skip writing the lunch period entirely
-                    continue
-                # For other lunch_breaks periods, skip as well
+            if lunch_period and period == lunch_period:
+                # Skip writing this period (lunch break)
                 continue
 
             available_teachers = set(teachers.keys())
