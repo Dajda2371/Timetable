@@ -1,11 +1,15 @@
 import webbrowser
 import json
 import random
-import http.server
-import platform
-import socketserver
 import os
+import platform
+from typing import Dict, Any
 
+import uvicorn
+from fastapi import FastAPI, HTTPException, Request, Body
+from fastapi.responses import FileResponse, JSONResponse
+
+# Constants
 if os.name == "nt":
     EXAMPLE_CONFIG_FILE = "data\\example_config.json"
     CONFIG_FILE = "data\\config.json"
@@ -16,6 +20,8 @@ else:
     CONFIG_FILE = "data/config.json"
     TIMETABLE_FILE = "data/timetable.json"
     DATA_DIRECTORY = "data"
+
+app = FastAPI()
 
 def run_ui():
     # Opens the UI in a web browser.
@@ -113,97 +119,96 @@ def generate_timetable(config):
 
     return timetable, class_timetable
 
-class RequestHandler(http.server.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        # Handles GET requests for fetching config and generating timetable.
-        if self.path == "/config":
-            if not os.path.exists(CONFIG_FILE):
-                print("config file not found")
-                self.send_response(404)
-                self.send_header("Content-Type", "application/json")
-                self.end_headers()
-                self.wfile.write(json.dumps({"message": "Config file not found."}).encode())
-                return
-            try:
-                config = load_config()
-                if config is None:
-                    print("config file is empty")
-                    self.send_response(404)
-                    self.send_header("Content-Type", "application/json")
-                    self.end_headers()
-                    self.wfile.write(json.dumps({"message": "Config file is empty."}).encode())
-                    return
-                print("config file loaded")
-                self.send_response(200)
-                self.send_header("Content-Type", "application/json")
-                self.end_headers()
-                self.wfile.write(json.dumps(config).encode())
-            except Exception as e:
-                self.send_error(500, "Error loading config: " + str(e))
-        elif self.path == "/example-config":
-            try:
-                with open(EXAMPLE_CONFIG_FILE, "r") as f:
-                    example_config = json.load(f)
-                self.send_response(200)
-                self.send_header("Content-Type", "application/json")
-                self.end_headers()
-                self.wfile.write(json.dumps(example_config).encode())
-            except FileNotFoundError:
-                self.send_error(404, "Example config file not found.")
-            except Exception as e:
-                self.send_error(500, "Error loading example config: " + str(e))
+@app.get("/config")
+def get_config():
+    if not os.path.exists(CONFIG_FILE):
+        print("config file not found")
+        return JSONResponse(status_code=404, content={"message": "Config file not found."})
+    try:
+        config = load_config()
+        if config is None:
+            print("config file is empty")
+            return JSONResponse(status_code=404, content={"message": "Config file is empty."})
+        print("config file loaded")
+        return config
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error loading config: " + str(e))
 
-        elif self.path == "/generate":
-            try:
-                config = load_config()
-                timetable, class_timetable = generate_timetable(config)
-                data = {
-                    "teachers_timetable": timetable,
-                    "classes_timetable": class_timetable
-                }
+@app.get("/example-config")
+def get_example_config():
+    try:
+        with open(EXAMPLE_CONFIG_FILE, "r") as f:
+            example_config = json.load(f)
+        return example_config
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Example config file not found.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error loading example config: " + str(e))
 
-                with open(TIMETABLE_FILE, "w") as f:
-                    json.dump(data, f, indent=4)
+@app.post("/save-config")
+def save_config_endpoint(config: Dict[str, Any] = Body(...)):
+    try:
+        save_config(config)
+        print("Config updated successfully.")
+        return {"message": "Config saved successfully!"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error saving config: " + str(e))
 
-                self.send_response(200)
-                self.send_header("Content-Type", "application/json")
-                self.end_headers()
-                self.wfile.write(json.dumps({"message": "Timetable saved successfully!"}).encode())
-                print("Timetable generated and saved.")
-            except Exception as e:
-                self.send_error(500, "Error generating timetable: " + str(e))
+@app.get("/generate")
+def generate():
+    try:
+        config = load_config()
+        if config is None:
+             raise Exception("Config is empty")
 
-        else:
-            # Serve files from the data directory if they are not in the root
-            if not os.path.exists(self.path[1:]):
-                self.path = os.path.join(DATA_DIRECTORY, self.path[1:])
-                if os.path.isdir(self.path):
-                    self.path = os.path.join(self.path, "index.html")
-            super().do_GET()
+        timetable, class_timetable = generate_timetable(config)
+        data = {
+            "teachers_timetable": timetable,
+            "classes_timetable": class_timetable
+        }
 
-    def do_POST(self):
-        # Handles POST requests to save the updated config.json.
-        if self.path == "/save-config":
-            content_length = int(self.headers["Content-Length"])
-            post_data = self.rfile.read(content_length)
+        with open(TIMETABLE_FILE, "w") as f:
+            json.dump(data, f, indent=4)
 
-            try:
-                new_config = json.loads(post_data.decode("utf-8"))
-                save_config(new_config)
-                self.send_response(200)
-                self.send_header("Content-Type", "application/json")
-                self.end_headers()
-                self.wfile.write(json.dumps({"message": "Config saved successfully!"}).encode())
-                print("Config updated successfully.")
-            except Exception as e:
-                self.send_error(500, "Error saving config: " + str(e))
+        print("Timetable generated and saved.")
+        return {"message": "Timetable saved successfully!"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error generating timetable: " + str(e))
 
-# Change the directory before starting the server
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+@app.get("/ui.html")
+def get_ui():
+    return FileResponse("ui.html")
 
-PORT = 8000
-with socketserver.TCPServer(("", PORT), RequestHandler) as httpd:
+@app.get("/")
+def root():
+    return FileResponse("ui.html")
+
+@app.get("/{file_path:path}")
+def serve_static(file_path: str):
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(base_dir, DATA_DIRECTORY)
+
+    # Check if file exists in root (safe)
+    target_path = os.path.abspath(os.path.join(base_dir, file_path))
+    if target_path.startswith(base_dir) and os.path.exists(target_path) and os.path.isfile(target_path):
+        return FileResponse(target_path)
+
+    # Check data directory (safe fallback)
+    target_data_path = os.path.abspath(os.path.join(data_dir, file_path))
+    if target_data_path.startswith(data_dir) and os.path.exists(target_data_path):
+        if os.path.isdir(target_data_path):
+            index_path = os.path.join(target_data_path, "index.html")
+            if os.path.exists(index_path):
+                return FileResponse(index_path)
+        elif os.path.isfile(target_data_path):
+            return FileResponse(target_data_path)
+
+    raise HTTPException(status_code=404, detail="File not found")
+
+if __name__ == "__main__":
+    # Change the directory before starting the server
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
     run_ui()
-    print(f"Server running at http://localhost:{PORT}")
-    httpd.serve_forever()
-    print("Server stopped.")
+    print(f"Server running at http://localhost:8000")
+    uvicorn.run(app, host="0.0.0.0", port=8000)
