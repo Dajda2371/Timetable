@@ -13,6 +13,7 @@
             display: flex;
             gap: 10px; /* Space between buttons */
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         button { padding: 10px; background: blue; color: white; border: none; cursor: pointer; }
         #example-config-button {
@@ -24,6 +25,47 @@
         }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+
+        /* Navigation Slider / Segmented Control */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .nav-tabs {
+            display: inline-flex;
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 6px;
+            gap: 4px;
+        }
+        .nav-tab {
+            padding: 6px 14px;
+            border-radius: 4px;
+            border: none;
+            background: transparent;
+            color: #334155;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .nav-tab:hover {
+            color: #0f172a;
+        }
+        .nav-tab.active {
+            background: #ffffff;
+            color: blue;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+        }
 
         /* Modern UI theme (only active when switched to Modern UI) */
         body.modern-ui {
@@ -58,6 +100,9 @@
         body.modern-ui button:hover {
             background: #1d4ed8;
         }
+        body.modern-ui .nav-tab.active {
+            color: #2563eb;
+        }
         body.modern-ui th {
             background: #f1f5f9;
             color: #334155;
@@ -69,9 +114,15 @@
 </head>
 <body>
     <div class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div class="header-bar">
             <h1 id="page-title" style="margin: 0;">Config Editor</h1>
-            <button id="toggle-ui-btn" onclick="toggleUI()" style="font-size: 13px;">Switch to Modern UI</button>
+            <div class="header-controls">
+                <nav class="nav-tabs" aria-label="Main Navigation">
+                    <button type="button" class="nav-tab active" id="tab-config" onclick="switchView('config')">⚙️ Config Editor</button>
+                    <button type="button" class="nav-tab" id="tab-timetables" onclick="switchView('timetables')">📅 All Timetables</button>
+                </nav>
+                <button id="toggle-ui-btn" onclick="toggleUI()" style="font-size: 13px; padding: 6px 10px;">Switch to Modern UI</button>
+            </div>
         </div>
         
         <!-- Config Section -->
@@ -148,18 +199,18 @@
         <!-- Timetables Section -->
         <div id="timetables-container" style="display: none;">
             <div class="button-group">
-                <button id="back-to-config" onclick="showConfigView()">Back to Config Editor</button>
+                <button id="back-to-config" onclick="switchView('config')">Back to Config Editor</button>
                 <button onclick="loadTimetables()">Refresh Timetables</button>
                 <button onclick="window.print()">Print Timetables</button>
             </div>
 
             <div class="section">
-                <label><strong>Filter by View: </strong></label>
-                <select id="timetable-view-filter" onchange="renderTimetables()" style="width: auto; display: inline-block;">
-                    <option value="classes">Classes Timetables</option>
-                    <option value="teachers">Teachers Timetables</option>
-                    <option value="both">Both Classes & Teachers</option>
-                </select>
+                <label style="margin-right: 8px;"><strong>Filter by View: </strong></label>
+                <div class="nav-tabs" style="vertical-align: middle;">
+                    <button type="button" class="nav-tab active" id="filter-btn-classes" onclick="setTimetableFilter('classes')">Classes</button>
+                    <button type="button" class="nav-tab" id="filter-btn-teachers" onclick="setTimetableFilter('teachers')">Teachers</button>
+                    <button type="button" class="nav-tab" id="filter-btn-both" onclick="setTimetableFilter('both')">Both</button>
+                </div>
             </div>
 
             <div id="timetables-output"></div>
@@ -169,6 +220,7 @@
     <script>
         let config = {};
         let timetableData = null;
+        let currentTimetableFilter = 'classes';
         const exampleConfigButton = document.getElementById("example-config-button");
 
         /* UI Theme Toggle */
@@ -189,18 +241,36 @@
             document.getElementById('toggle-ui-btn').textContent = isModern ? 'Switch to Old UI' : 'Switch to Modern UI';
         }
 
-        /* View Toggle (Config vs Timetables) */
-        function showConfigView() {
-            document.getElementById('config-container').style.display = 'block';
-            document.getElementById('timetables-container').style.display = 'none';
-            document.getElementById('page-title').textContent = 'Config Editor';
+        /* View Slider Toggle (Config vs Timetables) */
+        function switchView(viewName) {
+            const configContainer = document.getElementById('config-container');
+            const timetablesContainer = document.getElementById('timetables-container');
+            const tabConfig = document.getElementById('tab-config');
+            const tabTimetables = document.getElementById('tab-timetables');
+            const pageTitle = document.getElementById('page-title');
+
+            if (viewName === 'timetables') {
+                configContainer.style.display = 'none';
+                timetablesContainer.style.display = 'block';
+                tabConfig.classList.remove('active');
+                tabTimetables.classList.add('active');
+                pageTitle.textContent = 'All Timetables';
+                loadTimetables();
+            } else {
+                timetablesContainer.style.display = 'none';
+                configContainer.style.display = 'block';
+                tabTimetables.classList.remove('active');
+                tabConfig.classList.add('active');
+                pageTitle.textContent = 'Config Editor';
+            }
         }
 
-        function showTimetablesView() {
-            document.getElementById('config-container').style.display = 'none';
-            document.getElementById('timetables-container').style.display = 'block';
-            document.getElementById('page-title').textContent = 'All Timetables';
-            loadTimetables();
+        function setTimetableFilter(filter) {
+            currentTimetableFilter = filter;
+            document.getElementById('filter-btn-classes').classList.toggle('active', filter === 'classes');
+            document.getElementById('filter-btn-teachers').classList.toggle('active', filter === 'teachers');
+            document.getElementById('filter-btn-both').classList.toggle('active', filter === 'both');
+            renderTimetables();
         }
 
         async function loadConfig() {
@@ -499,7 +569,7 @@
             const output = document.getElementById("timetables-output");
             if (!timetableData) return;
 
-            const filter = document.getElementById("timetable-view-filter").value;
+            const filter = currentTimetableFilter;
             let html = "";
 
             const scheduleDays = (config.schedule_config && Object.keys(config.schedule_config).length > 0)
@@ -618,7 +688,7 @@
                 });
         });
 
-        document.getElementById("viewTimetablesButton").addEventListener("click", showTimetablesView);
+        document.getElementById("viewTimetablesButton").addEventListener("click", () => switchView('timetables'));
 
         exampleConfigButton.addEventListener("click", loadExampleConfig);
 
