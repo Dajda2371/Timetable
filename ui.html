@@ -41,33 +41,32 @@
         .header-controls {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
         .nav-tabs {
             display: inline-flex;
-            background: #e2e8f0;
-            padding: 4px;
-            border-radius: 6px;
-            gap: 4px;
+            gap: 5px;
         }
         .nav-tab {
-            padding: 6px 14px;
-            border-radius: 4px;
+            padding: 10px;
+            background: #ccc;
+            color: #000;
             border: none;
-            background: transparent;
-            color: #334155;
-            font-weight: bold;
-            font-size: 13px;
             cursor: pointer;
-            transition: all 0.15s ease;
-        }
-        .nav-tab:hover {
-            color: #0f172a;
+            font-size: 13.3333px;
         }
         .nav-tab.active {
-            background: #ffffff;
-            color: blue;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+            background: blue;
+            color: white;
+        }
+
+        #toggle-ui-btn {
+            padding: 10px;
+            background: #666;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 13.3333px;
         }
 
         /* Timetable controls base */
@@ -90,10 +89,11 @@
             min-width: 180px;
             padding: 8px;
             margin: 0;
+            border: 1px solid #ccc;
         }
         .view-mode-toggle {
             display: inline-flex;
-            gap: 4px;
+            gap: 5px;
         }
         .view-mode-btn {
             padding: 10px;
@@ -101,6 +101,7 @@
             color: #000;
             border: none;
             cursor: pointer;
+            font-size: 13.3333px;
         }
         .view-mode-btn.active {
             background: blue;
@@ -112,6 +113,7 @@
             color: white;
             border: none;
             cursor: pointer;
+            font-size: 13.3333px;
         }
         .btn-ctrl.primary {
             background: blue;
@@ -216,9 +218,37 @@
         body.modern-ui button:hover {
             background: #1d4ed8;
         }
-        body.modern-ui .nav-tab.active {
-            color: #2563eb;
+        body.modern-ui .nav-tabs {
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 6px;
+            gap: 4px;
         }
+        body.modern-ui .nav-tab {
+            padding: 6px 14px;
+            border-radius: 4px;
+            background: transparent;
+            color: #334155;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        body.modern-ui .nav-tab.active {
+            background: #ffffff;
+            color: #2563eb;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+        }
+        body.modern-ui #toggle-ui-btn {
+            background: #e2e8f0;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        body.modern-ui #toggle-ui-btn:hover {
+            background: #cbd5e1;
+        }
+
         body.modern-ui th {
             background: #f1f5f9;
             color: #334155;
