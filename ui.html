@@ -935,14 +935,15 @@
                 }
 
                 let rowsHtml = "";
-                for (let p = 1; p <= maxPeriodOverall; p++) {
-                    rowsHtml += `<tr><th class="period-header">Period ${p}</th>`;
-                    days.forEach(day => {
-                        const dayConfig = scheduleConfig[day] || { max_periods: 8, lunch_breaks: [] };
-                        const maxPeriodsForDay = dayConfig.max_periods || 8;
+                days.forEach(day => {
+                    const dayConfig = scheduleConfig[day] || { max_periods: 8, lunch_breaks: [] };
+                    const maxPeriodsForDay = dayConfig.max_periods || 8;
 
+                    rowsHtml += `<tr><th class="period-header" style="text-transform: capitalize; text-align: left; padding: 8px 10px;">${escapeHtml(day)}</th>`;
+
+                    for (let p = 1; p <= maxPeriodOverall; p++) {
                         if (p > maxPeriodsForDay) {
-                            rowsHtml += `<td class="period-cell"><span class="empty-slot">-</span></td>`;
+                            rowsHtml += `<td class="period-cell" style="background-color: #f1f5f9;"><span class="empty-slot">-</span></td>`;
                         } else {
                             const entry = schedule[day] && schedule[day][String(p)];
                             if (entry) {
@@ -959,8 +960,13 @@
                                 rowsHtml += `<td class="period-cell"><span class="empty-slot">-</span></td>`;
                             }
                         }
-                    });
+                    }
                     rowsHtml += `</tr>`;
+                });
+
+                let periodHeadersHtml = "";
+                for (let p = 1; p <= maxPeriodOverall; p++) {
+                    periodHeadersHtml += `<th class="period-header">Period ${p}</th>`;
                 }
 
                 return `
@@ -973,8 +979,8 @@
                             <table class="timetable-grid">
                                 <thead>
                                     <tr>
-                                        <th class="period-header">Period</th>
-                                        ${days.map(d => `<th>${escapeHtml(d)}</th>`).join('')}
+                                        <th class="period-header" style="width: 100px;">Day</th>
+                                        ${periodHeadersHtml}
                                     </tr>
                                 </thead>
                                 <tbody>
