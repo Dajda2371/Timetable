@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Config Editor</title>
     <style>
+        /* =========================================================
+           BASE / OLD UI STYLES (Default when not .modern-ui)
+           ========================================================= */
         body { font-family: Arial, sans-serif; padding: 20px; }
         .container { max-width: 1000px; margin: auto; }
         .section { margin-bottom: 20px; }
@@ -13,6 +16,7 @@
             display: flex;
             gap: 10px; /* Space between buttons */
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         button { padding: 10px; background: blue; color: white; border: none; cursor: pointer; }
         #example-config-button {
@@ -24,83 +28,518 @@
         }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+
+        /* Navigation Slider / Segmented Control in Header */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-tabs {
+            display: inline-flex;
+            gap: 5px;
+        }
+        .nav-tab {
+            padding: 10px;
+            background: #ccc;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-size: 13.3333px;
+        }
+        .nav-tab.active {
+            background: blue;
+            color: white;
+        }
+
+        #toggle-ui-btn {
+            padding: 10px;
+            background: #666;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 13.3333px;
+        }
+
+        /* Timetable controls base */
+        .timetable-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .controls-left, .controls-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-select, .search-input {
+            width: auto;
+            min-width: 180px;
+            padding: 8px;
+            margin: 0;
+            border: 1px solid #ccc;
+        }
+        .view-mode-toggle {
+            display: inline-flex;
+            gap: 5px;
+        }
+        .view-mode-btn {
+            padding: 10px;
+            background: #ccc;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-size: 13.3333px;
+        }
+        .view-mode-btn.active {
+            background: blue;
+            color: white;
+        }
+        .btn-ctrl {
+            padding: 10px;
+            background: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 13.3333px;
+        }
+        .btn-ctrl.primary {
+            background: blue;
+            color: white;
+        }
+        .timetable-card {
+            margin-bottom: 25px;
+        }
+        .timetable-card-header {
+            margin-bottom: 8px;
+        }
+        .timetable-entity-title {
+            margin: 0;
+            display: inline-block;
+        }
+        .timetable-entity-meta {
+            margin-left: 10px;
+            color: #555;
+            font-size: 0.9em;
+        }
+        .timetable-grid-wrapper {
+            overflow-x: auto;
+        }
+        .timetable-grid {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+        }
+        .timetable-grid th, .timetable-grid td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        .timetable-grid th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+        .period-header {
+            background: #e8e8e8 !important;
+            font-weight: bold;
+            width: 80px;
+        }
+        .lesson-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        .lesson-subject {
+            font-weight: bold;
+        }
+        .lesson-subinfo {
+            font-size: 0.85em;
+            color: #333;
+        }
+        .empty-slot {
+            color: #999;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 10px;
+        }
+
+        /* =========================================================
+           MODERN UI THEME OVERRIDES (Active when .modern-ui)
+           ========================================================= */
+        body.modern-ui {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        body.modern-ui .container {
+            max-width: 1150px;
+        }
+        body.modern-ui input, body.modern-ui select {
+            box-sizing: border-box;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px 12px;
+        }
+        body.modern-ui input:focus, body.modern-ui select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+        }
+        body.modern-ui table {
+            margin-bottom: 12px;
+        }
+        body.modern-ui .section {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        body.modern-ui button {
+            border-radius: 6px;
+            background: #2563eb;
+            font-weight: 500;
+            transition: background 0.15s ease;
+        }
+        body.modern-ui button:hover {
+            background: #1d4ed8;
+        }
+        body.modern-ui .nav-tabs {
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 6px;
+            gap: 4px;
+        }
+        body.modern-ui .nav-tab {
+            padding: 6px 14px;
+            border-radius: 4px;
+            background: transparent;
+            color: #334155;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        body.modern-ui .nav-tab.active {
+            background: #ffffff;
+            color: #2563eb;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+        }
+        body.modern-ui #toggle-ui-btn {
+            background: #e2e8f0;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        body.modern-ui #toggle-ui-btn:hover {
+            background: #cbd5e1;
+        }
+
+        body.modern-ui th {
+            background: #f1f5f9;
+            color: #334155;
+        }
+        body.modern-ui th, body.modern-ui td {
+            border: 1px solid #e2e8f0;
+        }
+
+        body.modern-ui .timetable-controls {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 14px 18px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        body.modern-ui .view-mode-toggle {
+            background: #e2e8f0;
+            padding: 3px;
+            border-radius: 6px;
+        }
+        body.modern-ui .view-mode-btn {
+            border-radius: 4px;
+            padding: 6px 12px;
+            background: transparent;
+            color: #475569;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        body.modern-ui .view-mode-btn.active {
+            background: #ffffff;
+            color: #2563eb;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+        body.modern-ui .btn-ctrl {
+            padding: 7px 14px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #f1f5f9;
+            color: #334155;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        body.modern-ui .btn-ctrl:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+        body.modern-ui .btn-ctrl.primary {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+        }
+        body.modern-ui .btn-ctrl.primary:hover {
+            background: #1d4ed8;
+        }
+        body.modern-ui .timetable-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        body.modern-ui .timetable-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+        }
+        body.modern-ui .timetable-entity-meta {
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: #475569;
+        }
+        body.modern-ui .timetable-grid th {
+            background-color: #f8fafc;
+            color: #334155;
+        }
+        body.modern-ui .timetable-grid th.period-header {
+            background-color: #f1f5f9 !important;
+            color: #1e293b;
+        }
+        body.modern-ui .period-cell {
+            height: 60px;
+            background: #ffffff;
+            transition: background 0.15s ease;
+        }
+        body.modern-ui .period-cell:hover {
+            background: #f8fafc;
+        }
+        body.modern-ui .lesson-subinfo {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #475569;
+        }
+        body.modern-ui .empty-state {
+            background: #ffffff;
+            border-radius: 8px;
+            border: 1px dashed #cbd5e1;
+            padding: 50px 20px;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+            }
+            .header-bar, .timetable-controls, .button-group, #status, #toggle-ui-btn {
+                display: none !important;
+            }
+            #config-container {
+                display: none !important;
+            }
+            #timetables-container {
+                display: block !important;
+            }
+            .timetable-card {
+                box-shadow: none !important;
+                border: 1px solid #000 !important;
+                margin-bottom: 30px !important;
+                page-break-after: always;
+            }
+            .timetable-grid th, .timetable-grid td {
+                border: 1px solid #666 !important;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Config Editor</h1>
-        
-        <div class="section" id="teachers-section">
-            <h2>Teachers</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Subjects</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="teachers-list"></tbody>
-            </table>
-            <button id="add-teacher">Add Teacher</button>
-        </div>
-
-        <div class="section" id="classes-section">
-            <h2>Classes</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Grade</th>
-                        <th>Class Name</th>
-                        <th>Class Teacher</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="classes-list"></tbody>
-            </table>
-            <button id="add-class">Add Class</button>
-        </div>
-
-        <div class="section" id="time-grant-section">
-            <h2>Time Grant</h2>
-            <table>
-                <thead>
-                    <tr id="time-grant-header-row">
-                        <!-- Dynamic headers go here -->
-                    </tr>
-                </thead>
-                <tbody id="time-grant-list"></tbody>
-            </table>
-            <button id="add-time-grant">Add Subject</button>
-        </div>
-
-        <div class="section" id="schedule-config-section">
-            <h2>Schedule Config</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Day</th>
-                        <th>Max Periods</th>
-                        <th>Lunch Breaks</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="schedule-config-list"></tbody>
-            </table>
-            <button id="add-schedule-config">Add Day</button>
+        <div class="header-bar">
+            <h1 id="page-title" style="margin: 0;">Config Editor</h1>
+            <div class="header-controls">
+                <nav class="nav-tabs" aria-label="Main Navigation">
+                    <button type="button" class="nav-tab active" id="tab-config" onclick="switchView('config')">⚙️ Config Editor</button>
+                    <button type="button" class="nav-tab" id="tab-timetables" onclick="switchView('timetables')">📅 All Timetables</button>
+                </nav>
+                <button id="toggle-ui-btn" onclick="toggleUI()" style="font-size: 13px; padding: 6px 10px;">Switch to Modern UI</button>
+            </div>
         </div>
         
-        <div class="button-group">
-            <button id="save-config">Save Config</button>
-            <button id="generateButton">Generate Timetables</button>
-            <button id="example-config-button">Use Example Config</button>
+        <!-- Config Section -->
+        <div id="config-container">
+            <div class="button-group">
+                <button id="save-config">Save Config</button>
+                <button id="generateButton">Generate Timetables</button>
+                <button id="viewTimetablesButton">See All Timetables</button>
+                <button id="example-config-button">Use Example Config</button>
+            </div>
+            <p id="status"></p>
+
+            <div class="section" id="teachers-section">
+                <h2>Teachers</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Subjects</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teachers-list"></tbody>
+                </table>
+                <button id="add-teacher">Add Teacher</button>
+            </div>
+
+            <div class="section" id="classes-section">
+                <h2>Classes</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Grade</th>
+                            <th>Class Name</th>
+                            <th>Class Teacher</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="classes-list"></tbody>
+                </table>
+                <button id="add-class">Add Class</button>
+            </div>
+
+            <div class="section" id="time-grant-section">
+                <h2>Time Grant</h2>
+                <table>
+                    <thead>
+                        <tr id="time-grant-header-row">
+                            <!-- Dynamic headers go here -->
+                        </tr>
+                    </thead>
+                    <tbody id="time-grant-list"></tbody>
+                </table>
+                <button id="add-time-grant">Add Subject</button>
+            </div>
+
+            <div class="section" id="schedule-config-section">
+                <h2>Schedule Config</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Max Periods</th>
+                            <th>Lunch Breaks</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedule-config-list"></tbody>
+                </table>
+                <button id="add-schedule-config">Add Day</button>
+            </div>
         </div>
-        <p id="status"></p>
+
+        <!-- Timetables Section -->
+        <div id="timetables-container" style="display: none;">
+            <div class="timetable-controls">
+                <div class="controls-left">
+                    <div class="view-mode-toggle" role="group" aria-label="Timetable Category">
+                        <button type="button" class="view-mode-btn active" id="mode-classes-btn" onclick="setTimetableMode('classes')">Classes</button>
+                        <button type="button" class="view-mode-btn" id="mode-teachers-btn" onclick="setTimetableMode('teachers')">Teachers</button>
+                    </div>
+
+                    <select id="entity-filter-select" class="filter-select" onchange="renderCurrentTimetables()">
+                        <option value="all">Show All Classes</option>
+                    </select>
+
+                    <input type="text" id="timetable-search-input" class="search-input" placeholder="Search subject, teacher..." oninput="renderCurrentTimetables()">
+                </div>
+
+                <div class="controls-right">
+                    <button type="button" class="btn-ctrl" onclick="loadTimetables(true)">Refresh</button>
+                    <button type="button" class="btn-ctrl" onclick="window.print()">Print Timetables</button>
+                    <button type="button" class="btn-ctrl primary" onclick="switchView('config')">Back to Config Editor</button>
+                </div>
+            </div>
+
+            <div id="timetables-display-area" class="timetables-container">
+                <!-- Timetables rendered here dynamically -->
+            </div>
+        </div>
     </div>
     
     <script>
         let config = {};
+        let timetableData = null;
+        let currentTimetableMode = 'classes'; // 'classes' or 'teachers'
         const exampleConfigButton = document.getElementById("example-config-button");
+
+        /* UI Theme Toggle */
+        function initTheme() {
+            const savedTheme = localStorage.getItem('timetable_ui_theme');
+            if (savedTheme === 'modern') {
+                document.body.classList.add('modern-ui');
+                document.getElementById('toggle-ui-btn').textContent = 'Switch to Old UI';
+            } else {
+                document.body.classList.remove('modern-ui');
+                document.getElementById('toggle-ui-btn').textContent = 'Switch to Modern UI';
+            }
+        }
+
+        function toggleUI() {
+            const isModern = document.body.classList.toggle('modern-ui');
+            localStorage.setItem('timetable_ui_theme', isModern ? 'modern' : 'classic');
+            document.getElementById('toggle-ui-btn').textContent = isModern ? 'Switch to Old UI' : 'Switch to Modern UI';
+        }
+
+        /* View Slider Toggle (Config vs Timetables) */
+        function switchView(viewName) {
+            const configContainer = document.getElementById('config-container');
+            const timetablesContainer = document.getElementById('timetables-container');
+            const tabConfig = document.getElementById('tab-config');
+            const tabTimetables = document.getElementById('tab-timetables');
+            const pageTitle = document.getElementById('page-title');
+
+            if (viewName === 'timetables') {
+                configContainer.style.display = 'none';
+                timetablesContainer.style.display = 'block';
+                tabConfig.classList.remove('active');
+                tabTimetables.classList.add('active');
+                pageTitle.textContent = 'All Timetables';
+                loadTimetables();
+            } else {
+                timetablesContainer.style.display = 'none';
+                configContainer.style.display = 'block';
+                tabTimetables.classList.remove('active');
+                tabConfig.classList.add('active');
+                pageTitle.textContent = 'Config Editor';
+            }
+        }
 
         async function loadConfig() {
             try {
@@ -169,6 +608,7 @@
                 document.getElementById("status").textContent = "Failed to load example config.";
             }
         }
+
         function renderAll() {
             renderTeachers();
             renderClasses();
@@ -179,11 +619,11 @@
         function renderTeachers() {
             const teachersList = document.getElementById("teachers-list");
             teachersList.innerHTML = "";
-            config.teachers.forEach((teacher, index) => {
+            (config.teachers || []).forEach((teacher, index) => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td><input type="text" value="${teacher.name}" onchange="updateTeacher(${index}, 'name', this.value)"></td>
-                    <td><input type="text" value="${teacher.subjects.join(', ')}" onchange="updateTeacher(${index}, 'subjects', this.value.split(', '))"></td>
+                    <td><input type="text" value="${escapeHtml(teacher.name)}" onchange="updateTeacher(${index}, 'name', this.value)"></td>
+                    <td><input type="text" value="${escapeHtml(teacher.subjects.join(', '))}" onchange="updateTeacher(${index}, 'subjects', this.value.split(', ').map(s => s.trim()).filter(Boolean))"></td>
                     <td><button onclick="removeTeacher(${index})">Remove</button></td>
                 `;
                 teachersList.appendChild(row);
@@ -191,6 +631,7 @@
         }
 
         function addTeacher() {
+            if (!config.teachers) config.teachers = [];
             config.teachers.push({ name: "", subjects: [] });
             renderTeachers();
         }
@@ -207,12 +648,12 @@
         function renderClasses() {
             const classesList = document.getElementById("classes-list");
             classesList.innerHTML = "";
-            config.classes.forEach((cls, index) => {
+            (config.classes || []).forEach((cls, index) => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td><input type="number" value="${cls.grade}" onchange="updateClass(${index}, 'grade', this.value)"></td>
-                    <td><input type="text" value="${cls.class_name}" onchange="updateClass(${index}, 'class_name', this.value)"></td>
-                    <td><input type="text" value="${cls.class_teacher}" onchange="updateClass(${index}, 'class_teacher', this.value)"></td>
+                    <td><input type="text" value="${escapeHtml(cls.class_name)}" onchange="updateClass(${index}, 'class_name', this.value)"></td>
+                    <td><input type="text" value="${escapeHtml(cls.class_teacher)}" onchange="updateClass(${index}, 'class_teacher', this.value)"></td>
                     <td><button onclick="removeClass(${index})">Remove</button></td>
                 `;
                 classesList.appendChild(row);
@@ -220,6 +661,7 @@
         }
 
         function addClass() {
+            if (!config.classes) config.classes = [];
             config.classes.push({ grade: "", class_name: "", class_teacher: "" });
             renderClasses();
             renderTimeGrant();
@@ -234,6 +676,7 @@
                 const newGrade = value;
 
                 // Create new grade in time_grant if needed
+                if (!config.time_grant) config.time_grant = {};
                 if (!config.time_grant[newGrade]) {
                     config.time_grant[newGrade] = {};
                 }
@@ -249,8 +692,15 @@
         }
 
         function removeClass(index) {
-            const grade = config.classes[index].grade;
+            const removedGrade = config.classes[index].grade;
             config.classes.splice(index, 1);
+
+            // Check if any class with this grade remains
+            const gradeStillExists = config.classes.some(cls => cls.grade == removedGrade);
+            if (!gradeStillExists && config.time_grant) {
+                delete config.time_grant[removedGrade];
+            }
+
             renderClasses();
             renderTimeGrant();
         }
@@ -260,11 +710,12 @@
             const headerRow = document.getElementById("time-grant-header-row");
             list.innerHTML = "";
 
+            if (!config.time_grant) config.time_grant = {};
             const grades = Object.keys(config.time_grant);
 
             // Generate header row with one <th> per grade
             headerRow.innerHTML = `<th>Subject</th>` +
-                grades.map(grade => `<th>Grade ${grade}</th>`).join("") +
+                grades.map(grade => `<th>Grade ${escapeHtml(grade)}</th>`).join("") +
                 `<th>Actions</th>`;
 
             const subjects = new Set();
@@ -275,12 +726,12 @@
             subjects.forEach(subject => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td><input type="text" value="${subject}" onchange="updateTimeGrantSubject('${subject}', this.value)"></td>
+                    <td><input type="text" value="${escapeHtml(subject)}" onchange="updateTimeGrantSubject('${escapeJs(subject)}', this.value)"></td>
                     ${grades.map(grade => `
                         <td><input type='number' value='${config.time_grant[grade][subject] || 0}' 
-                        onchange='updateTimeGrant("${grade}", "${subject}", this.value)'></td>
+                        onchange='updateTimeGrant("${escapeJs(grade)}", "${escapeJs(subject)}", this.value)'></td>
                     `).join("")}
-                    <td><button onclick="removeTimeGrant('${subject}')">Remove</button></td>
+                    <td><button onclick="removeTimeGrant('${escapeJs(subject)}')">Remove</button></td>
                 `;
                 list.appendChild(row);
             });
@@ -305,29 +756,16 @@
             renderTimeGrant();
         }
 
-        function removeClass(index) {
-            const removedGrade = config.classes[index].grade;
-            config.classes.splice(index, 1);
-
-            // Check if any class with this grade remains
-            const gradeStillExists = config.classes.some(cls => cls.grade == removedGrade);
-            if (!gradeStillExists) {
-                delete config.time_grant[removedGrade];
-            }
-
-            renderClasses();
-            renderTimeGrant();
-        }
-
         function renderScheduleConfig() {
             const list = document.getElementById("schedule-config-list");
             list.innerHTML = "";
+            if (!config.schedule_config) config.schedule_config = {};
             Object.keys(config.schedule_config).forEach(day => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td><input type="text" value="${day}" onchange="updateScheduleDay('${day}', this.value)"></td>
+                    <td><input type="text" value="${escapeHtml(day)}" onchange="updateScheduleDay('${escapeJs(day)}', this.value)"></td>
                     <td><input type="number" value="${config.schedule_config[day].max_periods}" onchange="updateSchedule('${day}', 'max_periods', this.value)"></td>
-                    <td><input type="text" value="${config.schedule_config[day].lunch_breaks.join(', ')}" onchange="updateSchedule('${day}', 'lunch_breaks', this.value.split(',').map(Number))"></td>
+                    <td><input type="text" value="${(config.schedule_config[day].lunch_breaks || []).join(', ')}" onchange="updateSchedule('${day}', 'lunch_breaks', this.value.split(',').map(Number))"></td>
                     <td><button onclick="removeScheduleConfig('${day}')">Remove</button></td>
                 `;
                 list.appendChild(row);
@@ -375,10 +813,251 @@
             }
         }
 
+        /* ---------------- Timetable Viewer Logic ---------------- */
+
+        async function loadTimetables(forceRefresh = false) {
+            const displayArea = document.getElementById("timetables-display-area");
+            displayArea.innerHTML = "<p style='text-align:center; padding: 20px;'>Loading timetables...</p>";
+            
+            try {
+                const response = await fetch("/timetable" + (forceRefresh ? `?t=${Date.now()}` : ""));
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        displayArea.innerHTML = `
+                            <div class="empty-state">
+                                <h3>No Timetable Generated Yet</h3>
+                                <p>Generate your first timetable from the Config Editor or click below.</p>
+                                <button type="button" class="btn-ctrl primary" onclick="generateAndShowTimetable()" style="padding: 10px 20px;">⚡ Generate Timetables Now</button>
+                            </div>
+                        `;
+                        return;
+                    }
+                    throw new Error("Failed to fetch timetable data");
+                }
+
+                timetableData = await response.json();
+                populateFilterOptions();
+                renderCurrentTimetables();
+            } catch (error) {
+                console.error("Error fetching timetable:", error);
+                displayArea.innerHTML = `
+                    <div class="empty-state">
+                        <h3 style="color: red;">Error Loading Timetables</h3>
+                        <p>${escapeHtml(error.message)}</p>
+                        <button type="button" class="btn-ctrl primary" onclick="switchView('config')">Back to Config Editor</button>
+                    </div>
+                `;
+            }
+        }
+
+        async function generateAndShowTimetable() {
+            const statusMsg = document.getElementById("status");
+            if (statusMsg) statusMsg.textContent = "Generating timetables...";
+            try {
+                const response = await fetch("/generate");
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || "Generation failed");
+                if (statusMsg) statusMsg.textContent = data.message || "Timetables generated successfully!";
+                await loadTimetables(true);
+            } catch (error) {
+                console.error("Error:", error);
+                if (statusMsg) statusMsg.textContent = "Failed to generate timetables: " + error.message;
+            }
+        }
+
+        function setTimetableMode(mode) {
+            currentTimetableMode = mode;
+            document.getElementById("mode-classes-btn").classList.toggle("active", mode === 'classes');
+            document.getElementById("mode-teachers-btn").classList.toggle("active", mode === 'teachers');
+            populateFilterOptions();
+            renderCurrentTimetables();
+        }
+
+        function populateFilterOptions() {
+            const filterSelect = document.getElementById("entity-filter-select");
+            filterSelect.innerHTML = "";
+
+            if (!timetableData) return;
+
+            const isClass = currentTimetableMode === 'classes';
+            const dataSource = isClass ? timetableData.classes_timetable : timetableData.teachers_timetable;
+            const keys = Object.keys(dataSource || {}).sort();
+
+            const defaultOption = document.createElement("option");
+            defaultOption.value = "all";
+            defaultOption.textContent = isClass ? "Show All Classes" : "Show All Teachers";
+            filterSelect.appendChild(defaultOption);
+
+            keys.forEach(key => {
+                const opt = document.createElement("option");
+                opt.value = key;
+                opt.textContent = (isClass ? "Class " : "") + key;
+                filterSelect.appendChild(opt);
+            });
+        }
+
+        function renderCurrentTimetables() {
+            const displayArea = document.getElementById("timetables-display-area");
+            if (!timetableData) return;
+
+            const isClass = currentTimetableMode === 'classes';
+            const dataSource = isClass ? timetableData.classes_timetable : timetableData.teachers_timetable;
+            const filterVal = document.getElementById("entity-filter-select").value;
+            const searchVal = document.getElementById("timetable-search-input").value.toLowerCase().trim();
+
+            if (!dataSource || Object.keys(dataSource).length === 0) {
+                displayArea.innerHTML = `<div class="empty-state"><h3>No ${isClass ? 'classes' : 'teachers'} found in timetable data.</h3></div>`;
+                return;
+            }
+
+            let entityKeys = Object.keys(dataSource).sort();
+
+            if (filterVal !== "all") {
+                entityKeys = entityKeys.filter(k => k === filterVal);
+            }
+
+            if (searchVal) {
+                entityKeys = entityKeys.filter(key => {
+                    if (key.toLowerCase().includes(searchVal)) return true;
+                    const schedule = dataSource[key];
+                    for (const day in schedule) {
+                        for (const p in schedule[day]) {
+                            const entry = schedule[day][p];
+                            if (entry.subject && entry.subject.toLowerCase().includes(searchVal)) return true;
+                            if (entry.teacher && entry.teacher.toLowerCase().includes(searchVal)) return true;
+                            if (entry.class && entry.class.toLowerCase().includes(searchVal)) return true;
+                        }
+                    }
+                    return false;
+                });
+            }
+
+            if (entityKeys.length === 0) {
+                displayArea.innerHTML = `<div class="empty-state"><h3>No results match your search/filter</h3></div>`;
+                return;
+            }
+
+            const scheduleConfig = (config.schedule_config && Object.keys(config.schedule_config).length > 0)
+                ? config.schedule_config 
+                : getDefaultDaysFromData(dataSource);
+
+            const days = Object.keys(scheduleConfig);
+            let maxPeriodOverall = 1;
+            days.forEach(day => {
+                const dayMax = scheduleConfig[day]?.max_periods || 8;
+                if (dayMax > maxPeriodOverall) maxPeriodOverall = dayMax;
+            });
+
+            displayArea.innerHTML = entityKeys.map(key => {
+                const schedule = dataSource[key] || {};
+                
+                let metaInfo = "";
+                if (isClass && config.classes) {
+                    const clsInfo = config.classes.find(c => c.class_name === key);
+                    if (clsInfo) {
+                        metaInfo = `Grade ${clsInfo.grade} • Class Teacher: ${escapeHtml(clsInfo.class_teacher || 'None')}`;
+                    }
+                } else if (!isClass && config.teachers) {
+                    const tInfo = config.teachers.find(t => t.name === key);
+                    if (tInfo && tInfo.subjects) {
+                        metaInfo = `Subjects: ${escapeHtml(tInfo.subjects.join(', '))}`;
+                    }
+                }
+
+                let rowsHtml = "";
+                days.forEach(day => {
+                    const dayConfig = scheduleConfig[day] || { max_periods: 8, lunch_breaks: [] };
+                    const maxPeriodsForDay = dayConfig.max_periods || 8;
+
+                    rowsHtml += `<tr><th class="period-header" style="text-transform: capitalize; text-align: left; padding: 8px 10px;">${escapeHtml(day)}</th>`;
+
+                    for (let p = 1; p <= maxPeriodOverall; p++) {
+                        if (p > maxPeriodsForDay) {
+                            rowsHtml += `<td class="period-cell" style="background-color: #f1f5f9;"><span class="empty-slot">-</span></td>`;
+                        } else {
+                            const entry = schedule[day] && schedule[day][String(p)];
+                            if (entry) {
+                                const subInfo = isClass ? `👨‍🏫 ${escapeHtml(entry.teacher || '')}` : `🏫 Class ${escapeHtml(entry.class || '')}`;
+                                rowsHtml += `
+                                    <td class="period-cell">
+                                        <div class="lesson-box">
+                                            <span class="lesson-subject">${escapeHtml(entry.subject || '')}</span>
+                                            <span class="lesson-subinfo">${subInfo}</span>
+                                        </div>
+                                    </td>
+                                `;
+                            } else {
+                                rowsHtml += `<td class="period-cell"><span class="empty-slot">-</span></td>`;
+                            }
+                        }
+                    }
+                    rowsHtml += `</tr>`;
+                });
+
+                let periodHeadersHtml = "";
+                for (let p = 1; p <= maxPeriodOverall; p++) {
+                    periodHeadersHtml += `<th class="period-header">Period ${p}</th>`;
+                }
+
+                return `
+                    <div class="timetable-card">
+                        <div class="timetable-card-header">
+                            <h3 class="timetable-entity-title">${isClass ? 'Class ' : 'Teacher: '}${escapeHtml(key)}</h3>
+                            ${metaInfo ? `<span class="timetable-entity-meta">${metaInfo}</span>` : ''}
+                        </div>
+                        <div class="timetable-grid-wrapper">
+                            <table class="timetable-grid">
+                                <thead>
+                                    <tr>
+                                        <th class="period-header" style="width: 100px;">Day</th>
+                                        ${periodHeadersHtml}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rowsHtml}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getDefaultDaysFromData(dataSource) {
+            const daysSet = new Set();
+            for (const key in dataSource) {
+                for (const day in dataSource[key]) {
+                    daysSet.add(day);
+                }
+            }
+            const fallbackDays = {};
+            daysSet.forEach(day => {
+                fallbackDays[day] = { max_periods: 8, lunch_breaks: [] };
+            });
+            return fallbackDays;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function escapeJs(str) {
+            if (!str) return '';
+            return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        }
+
+        /* Event Listeners */
         document.getElementById("add-teacher").addEventListener("click", addTeacher);
         document.getElementById("add-class").addEventListener("click", addClass);
 
         document.getElementById("add-time-grant").addEventListener("click", () => {
+            if (!config.time_grant) config.time_grant = {};
             Object.keys(config.time_grant).forEach(grade => {
                 config.time_grant[grade]["New Subject"] = 0;
             });
@@ -386,6 +1065,7 @@
         });
 
         document.getElementById("add-schedule-config").addEventListener("click", () => {
+            if (!config.schedule_config) config.schedule_config = {};
             config.schedule_config["New Day"] = { max_periods: 0, lunch_breaks: [] };
             renderScheduleConfig();
         });
@@ -404,8 +1084,12 @@
                 });
         });
 
+        document.getElementById("viewTimetablesButton").addEventListener("click", () => switchView('timetables'));
+
         exampleConfigButton.addEventListener("click", loadExampleConfig);
 
+        // Initial setup
+        initTheme();
         loadConfig();
     </script>
 </body>

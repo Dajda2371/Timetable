@@ -175,6 +175,18 @@ def generate():
     except Exception as e:
         raise HTTPException(status_code=500, detail="Error generating timetable: " + str(e))
 
+@app.get("/timetable")
+@app.get("/timetables")
+def get_timetable():
+    if not os.path.exists(TIMETABLE_FILE):
+        return JSONResponse(status_code=404, content={"message": "Timetable not found. Please generate it first."})
+    try:
+        with open(TIMETABLE_FILE, "r") as f:
+            data = json.load(f)
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error loading timetable: " + str(e))
+
 @app.get("/ui.html")
 def get_ui():
     return FileResponse("ui.html")
