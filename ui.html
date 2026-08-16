@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Timetable Management</title>
+    <title>Config Editor & Timetables</title>
     <style>
+        /* =========================================================
+           MODERN UI STYLES (Default / .modern-ui)
+           ========================================================= */
         :root {
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
@@ -32,7 +35,7 @@
             padding: 0;
         }
 
-        body {
+        body.modern-ui {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--gray-50);
             color: var(--gray-800);
@@ -40,13 +43,13 @@
             padding: 24px 16px;
         }
 
-        .container {
+        body.modern-ui .container {
             max-width: 1200px;
             margin: 0 auto;
         }
 
-        /* Top Header & Navigation */
-        .app-header {
+        /* Top Bar & Navigation */
+        body.modern-ui .app-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -57,20 +60,26 @@
             padding-bottom: 16px;
         }
 
-        .app-title-group h1 {
+        body.modern-ui .app-title-group h1 {
             font-size: 1.75rem;
             font-weight: 700;
             color: var(--gray-900);
             letter-spacing: -0.02em;
         }
 
-        .app-title-group p {
+        body.modern-ui .app-title-group p {
             color: var(--gray-600);
             font-size: 0.9rem;
             margin-top: 2px;
         }
 
-        .nav-tabs {
+        body.modern-ui .header-right-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        body.modern-ui .nav-tabs {
             display: flex;
             background: var(--gray-200);
             padding: 4px;
@@ -78,7 +87,7 @@
             gap: 4px;
         }
 
-        .nav-tab {
+        body.modern-ui .nav-tab {
             padding: 8px 18px;
             border-radius: 6px;
             border: none;
@@ -90,7 +99,7 @@
             transition: all 0.15s ease;
         }
 
-        .nav-tab.active {
+        body.modern-ui .nav-tab.active {
             background: #ffffff;
             color: var(--primary);
             box-shadow: var(--shadow-sm);
@@ -106,7 +115,7 @@
         }
 
         /* Card Section */
-        .section {
+        body.modern-ui .section {
             background: #ffffff;
             border: 1px solid var(--gray-200);
             border-radius: var(--radius);
@@ -115,21 +124,22 @@
             box-shadow: var(--shadow-sm);
         }
 
-        .section-header {
+        body.modern-ui .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 14px;
         }
 
-        .section-title {
+        body.modern-ui .section-title {
             font-size: 1.2rem;
             font-weight: 600;
             color: var(--gray-900);
         }
 
         /* Form Controls */
-        input, select {
+        body.modern-ui input, 
+        body.modern-ui select {
             padding: 8px 12px;
             border: 1px solid var(--gray-300);
             border-radius: 6px;
@@ -139,26 +149,27 @@
             background-color: #fff;
         }
 
-        input:focus, select:focus {
+        body.modern-ui input:focus, 
+        body.modern-ui select:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
 
         /* Tables */
-        .table-wrapper {
+        body.modern-ui .table-wrapper {
             overflow-x: auto;
             margin-top: 10px;
             margin-bottom: 12px;
         }
 
-        table {
+        body.modern-ui table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.9rem;
         }
 
-        th {
+        body.modern-ui th {
             background-color: var(--gray-100);
             color: var(--gray-700);
             font-weight: 600;
@@ -168,18 +179,18 @@
             white-space: nowrap;
         }
 
-        td {
+        body.modern-ui td {
             padding: 8px 12px;
             border-bottom: 1px solid var(--gray-200);
             vertical-align: middle;
         }
 
-        tbody tr:hover {
+        body.modern-ui tbody tr:hover {
             background-color: var(--gray-50);
         }
 
-        /* Buttons */
-        button {
+        /* Modern Buttons */
+        body.modern-ui button {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -193,55 +204,55 @@
             transition: all 0.15s ease;
         }
 
-        .btn-primary {
+        body.modern-ui .btn-primary {
             background-color: var(--primary);
             color: #ffffff;
         }
-        .btn-primary:hover {
+        body.modern-ui .btn-primary:hover {
             background-color: var(--primary-hover);
         }
 
-        .btn-success {
+        body.modern-ui .btn-success {
             background-color: var(--success);
             color: #ffffff;
         }
-        .btn-success:hover {
+        body.modern-ui .btn-success:hover {
             background-color: var(--success-hover);
         }
 
-        .btn-danger {
+        body.modern-ui .btn-danger {
             background-color: transparent;
             color: var(--danger);
             border-color: var(--gray-300);
             padding: 6px 12px;
             font-size: 0.85rem;
         }
-        .btn-danger:hover {
+        body.modern-ui .btn-danger:hover {
             background-color: var(--danger);
             color: #ffffff;
             border-color: var(--danger);
         }
 
-        .btn-secondary {
+        body.modern-ui .btn-secondary {
             background-color: var(--gray-100);
             color: var(--gray-700);
             border-color: var(--gray-300);
         }
-        .btn-secondary:hover {
+        body.modern-ui .btn-secondary:hover {
             background-color: var(--gray-200);
         }
 
-        .btn-add {
+        body.modern-ui .btn-add {
             background-color: var(--primary-light);
             color: var(--primary);
             border: 1px dashed var(--primary);
             font-weight: 600;
         }
-        .btn-add:hover {
+        body.modern-ui .btn-add:hover {
             background-color: #dbeafe;
         }
 
-        .button-group {
+        body.modern-ui .button-group {
             display: flex;
             gap: 12px;
             margin-top: 20px;
@@ -249,39 +260,39 @@
             flex-wrap: wrap;
         }
 
-        #example-config-button {
+        body.modern-ui #example-config-button {
             display: none;
         }
 
-        /* Status Banner */
-        #status {
+        /* Modern Status Banner */
+        body.modern-ui #status {
             padding: 10px 14px;
             border-radius: 6px;
             font-size: 0.9rem;
             margin-top: 12px;
             display: none;
         }
-        #status.info {
+        body.modern-ui #status.info {
             display: block;
             background-color: var(--primary-light);
             color: var(--primary);
             border: 1px solid #bfdbfe;
         }
-        #status.success {
+        body.modern-ui #status.success {
             display: block;
             background-color: #f0fdf4;
             color: var(--success);
             border: 1px solid #bbf7d0;
         }
-        #status.error {
+        body.modern-ui #status.error {
             display: block;
             background-color: #fef2f2;
             color: var(--danger);
             border: 1px solid #fecaca;
         }
 
-        /* Timetable Viewer Controls */
-        .timetable-controls {
+        /* Modern Timetable Controls */
+        body.modern-ui .timetable-controls {
             background: #ffffff;
             border: 1px solid var(--gray-200);
             border-radius: var(--radius);
@@ -295,24 +306,25 @@
             box-shadow: var(--shadow-sm);
         }
 
-        .controls-left, .controls-right {
+        body.modern-ui .controls-left, 
+        body.modern-ui .controls-right {
             display: flex;
             align-items: center;
             gap: 12px;
             flex-wrap: wrap;
         }
 
-        .filter-select {
+        body.modern-ui .filter-select {
             width: auto;
             min-width: 180px;
         }
 
-        .search-input {
+        body.modern-ui .search-input {
             width: auto;
             min-width: 200px;
         }
 
-        .view-mode-toggle {
+        body.modern-ui .view-mode-toggle {
             display: flex;
             background: var(--gray-100);
             padding: 3px;
@@ -320,7 +332,7 @@
             border: 1px solid var(--gray-200);
         }
 
-        .view-mode-btn {
+        body.modern-ui .view-mode-btn {
             padding: 6px 14px;
             border-radius: 4px;
             border: none;
@@ -331,20 +343,19 @@
             cursor: pointer;
         }
 
-        .view-mode-btn.active {
+        body.modern-ui .view-mode-btn.active {
             background: #ffffff;
             color: var(--primary);
             box-shadow: var(--shadow-sm);
         }
 
-        /* Timetable Cards & Grids */
-        .timetables-container {
+        body.modern-ui .timetables-container {
             display: flex;
             flex-direction: column;
             gap: 30px;
         }
 
-        .timetable-card {
+        body.modern-ui .timetable-card {
             background: #ffffff;
             border: 1px solid var(--gray-200);
             border-radius: var(--radius);
@@ -354,7 +365,7 @@
             page-break-inside: avoid;
         }
 
-        .timetable-card-header {
+        body.modern-ui .timetable-card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -363,13 +374,13 @@
             padding-bottom: 12px;
         }
 
-        .timetable-entity-title {
+        body.modern-ui .timetable-entity-title {
             font-size: 1.3rem;
             font-weight: 700;
             color: var(--gray-900);
         }
 
-        .timetable-entity-meta {
+        body.modern-ui .timetable-entity-meta {
             font-size: 0.9rem;
             color: var(--gray-600);
             background: var(--gray-100);
@@ -377,20 +388,21 @@
             border-radius: 20px;
         }
 
-        .timetable-grid {
+        body.modern-ui .timetable-grid {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
         }
 
-        .timetable-grid th, .timetable-grid td {
+        body.modern-ui .timetable-grid th, 
+        body.modern-ui .timetable-grid td {
             border: 1px solid var(--gray-200);
             text-align: center;
             padding: 10px 8px;
             vertical-align: middle;
         }
 
-        .timetable-grid th {
+        body.modern-ui .timetable-grid th {
             background-color: var(--gray-100);
             color: var(--gray-700);
             text-transform: capitalize;
@@ -398,32 +410,23 @@
             font-weight: 600;
         }
 
-        .timetable-grid th.period-header {
+        body.modern-ui .timetable-grid th.period-header {
             width: 80px;
             background-color: var(--gray-200);
             color: var(--gray-800);
         }
 
-        .period-cell {
+        body.modern-ui .period-cell {
             height: 64px;
             background: #ffffff;
             transition: background 0.15s ease;
         }
 
-        .period-cell:hover {
+        body.modern-ui .period-cell:hover {
             background: #f8fafc;
         }
 
-        .period-cell.lunch-break {
-            background-color: #fef3c7;
-            color: #92400e;
-            font-weight: 600;
-            font-size: 0.8rem;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-
-        .lesson-box {
+        body.modern-ui .lesson-box {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -432,14 +435,14 @@
             height: 100%;
         }
 
-        .lesson-subject {
+        body.modern-ui .lesson-subject {
             font-weight: 700;
             font-size: 0.88rem;
             color: var(--gray-900);
             line-height: 1.2;
         }
 
-        .lesson-subinfo {
+        body.modern-ui .lesson-subinfo {
             font-size: 0.75rem;
             color: var(--gray-600);
             background: var(--gray-100);
@@ -452,13 +455,12 @@
             white-space: nowrap;
         }
 
-        .empty-slot {
+        body.modern-ui .empty-slot {
             color: var(--gray-300);
             font-size: 1.1rem;
         }
 
-        /* Empty State */
-        .empty-state {
+        body.modern-ui .empty-state {
             text-align: center;
             padding: 60px 20px;
             background: #ffffff;
@@ -466,24 +468,289 @@
             border: 1px dashed var(--gray-300);
         }
 
-        .empty-state h3 {
+        body.modern-ui .empty-state h3 {
             font-size: 1.25rem;
             color: var(--gray-800);
             margin-bottom: 8px;
         }
 
-        .empty-state p {
+        body.modern-ui .empty-state p {
             color: var(--gray-600);
             margin-bottom: 20px;
+        }
+
+        /* =========================================================
+           OLD / CLASSIC UI STYLES (.classic-ui)
+           ========================================================= */
+        body.classic-ui {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #ffffff;
+            color: #000000;
+        }
+
+        body.classic-ui .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        body.classic-ui .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        body.classic-ui .app-title-group h1 {
+            font-size: 2em;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        body.classic-ui .app-title-group p {
+            display: none;
+        }
+
+        body.classic-ui .nav-tabs {
+            display: none;
+        }
+
+        body.classic-ui .section {
+            margin-bottom: 20px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        body.classic-ui .section-header {
+            display: block;
+            margin-bottom: 0;
+        }
+
+        body.classic-ui .section-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 5px;
+        }
+
+        body.classic-ui input, 
+        body.classic-ui select {
+            margin: 5px 0;
+            padding: 8px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 0;
+            background: #ffffff;
+            box-shadow: none;
+            font-size: 13.3333px;
+        }
+
+        body.classic-ui .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            margin-top: 0;
+        }
+
+        body.classic-ui button {
+            padding: 10px;
+            background: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 0;
+            font-weight: normal;
+            font-size: 13.3333px;
+            box-shadow: none;
+            display: inline-block;
+        }
+
+        body.classic-ui button:hover {
+            background: darkblue;
+        }
+
+        body.classic-ui .btn-add {
+            margin-top: 10px;
+        }
+
+        body.classic-ui #example-config-button {
+            background-color: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: none;
+        }
+
+        body.classic-ui table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        body.classic-ui th, 
+        body.classic-ui td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+            background: none;
+        }
+
+        body.classic-ui tbody tr:hover {
+            background-color: transparent;
+        }
+
+        body.classic-ui #status {
+            padding: 0;
+            background: none;
+            border: none;
+            color: #000000;
+            margin-top: 10px;
+            display: block;
+        }
+
+        /* Old UI Timetable Viewer adaptation */
+        body.classic-ui .timetable-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        body.classic-ui .controls-left, 
+        body.classic-ui .controls-right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        body.classic-ui .filter-select,
+        body.classic-ui .search-input {
+            width: auto;
+            min-width: 180px;
+        }
+
+        body.classic-ui .view-mode-toggle {
+            display: flex;
+            gap: 5px;
+        }
+
+        body.classic-ui .view-mode-btn {
+            background: #ccc;
+            color: #000;
+            padding: 8px 12px;
+        }
+
+        body.classic-ui .view-mode-btn.active {
+            background: blue;
+            color: white;
+        }
+
+        body.classic-ui .timetable-card {
+            margin-bottom: 30px;
+        }
+
+        body.classic-ui .timetable-card-header {
+            margin-bottom: 10px;
+        }
+
+        body.classic-ui .timetable-entity-title {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        body.classic-ui .timetable-entity-meta {
+            font-size: 0.9em;
+            color: #555;
+            margin-left: 10px;
+        }
+
+        body.classic-ui .timetable-grid {
+            margin-top: 10px;
+        }
+
+        body.classic-ui .timetable-grid th, 
+        body.classic-ui .timetable-grid td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+
+        body.classic-ui .timetable-grid th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+
+        body.classic-ui .period-cell {
+            height: 50px;
+        }
+
+        body.classic-ui .lesson-subject {
+            font-weight: bold;
+        }
+
+        body.classic-ui .lesson-subinfo {
+            font-size: 0.8em;
+            color: #444;
+        }
+
+        body.classic-ui .empty-state {
+            padding: 40px 10px;
+            text-align: center;
+        }
+
+        /* =========================================================
+           GLOBAL THEME TOGGLE BUTTON
+           ========================================================= */
+        .theme-toggle-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        body.modern-ui #theme-toggle-btn {
+            background-color: var(--gray-100);
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        body.modern-ui #theme-toggle-btn:hover {
+            background-color: var(--gray-200);
+            color: var(--gray-900);
+        }
+
+        body.classic-ui #theme-toggle-btn {
+            background-color: #555555;
+            color: #ffffff;
+            border: none;
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        body.classic-ui #theme-toggle-btn:hover {
+            background-color: #333333;
         }
 
         /* Print styles */
         @media print {
             body {
-                background: #ffffff;
-                padding: 0;
+                background: #ffffff !important;
+                padding: 0 !important;
             }
-            .app-header, .timetable-controls, .button-group, .btn-add, .nav-tabs, #status {
+            .app-header, .timetable-controls, .button-group, .btn-add, .nav-tabs, #status, .theme-toggle-wrapper {
                 display: none !important;
             }
             .view-panel {
@@ -493,59 +760,63 @@
                 display: none !important;
             }
             .timetable-card {
-                box-shadow: none;
-                border: 1px solid #000;
-                margin-bottom: 30px;
+                box-shadow: none !important;
+                border: 1px solid #000 !important;
+                margin-bottom: 30px !important;
                 page-break-after: always;
             }
             .timetable-grid th, .timetable-grid td {
-                border: 1px solid #666;
+                border: 1px solid #666 !important;
             }
         }
     </style>
 </head>
-<body>
+<body class="modern-ui">
     <div class="container">
-        <!-- Header & Nav Tabs -->
+        <!-- Top Header & Navigation -->
         <header class="app-header">
             <div class="app-title-group">
-                <h1>School Timetable System</h1>
+                <h1 id="main-heading">Config Editor</h1>
                 <p>Configure requirements, generate optimized timetables, and view schedules</p>
             </div>
-            <nav class="nav-tabs" aria-label="Main Navigation">
-                <button type="button" class="nav-tab active" id="tab-config" onclick="switchView('config')">⚙️ Config Editor</button>
-                <button type="button" class="nav-tab" id="tab-timetables" onclick="switchView('timetables')">📅 All Timetables</button>
-            </nav>
+            <div class="header-right-actions">
+                <nav class="nav-tabs" aria-label="Main Navigation">
+                    <button type="button" class="nav-tab active" id="tab-config" onclick="switchView('config')">⚙️ Config Editor</button>
+                    <button type="button" class="nav-tab" id="tab-timetables" onclick="switchView('timetables')">📅 All Timetables</button>
+                </nav>
+                <div class="theme-toggle-wrapper">
+                    <button type="button" id="theme-toggle-btn" onclick="toggleUiTheme()">📜 Switch to Old UI</button>
+                </div>
+            </div>
         </header>
 
         <!-- Status Message Banner -->
-        <div id="status" role="status"></div>
+        <p id="status"></p>
 
         <!-- VIEW 1: CONFIG EDITOR -->
-        <main id="config-view" class="view-panel active">
-            <section class="section" id="teachers-section">
+        <div id="config-view" class="view-panel active">
+            <div class="section" id="teachers-section">
                 <div class="section-header">
                     <h2 class="section-title">Teachers</h2>
-                    <button type="button" class="btn-add" id="add-teacher">+ Add Teacher</button>
                 </div>
                 <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
                                 <th style="width: 35%;">Name</th>
-                                <th>Subjects (comma-separated)</th>
+                                <th>Subjects</th>
                                 <th style="width: 100px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="teachers-list"></tbody>
                     </table>
                 </div>
-            </section>
+                <button type="button" class="btn-add" id="add-teacher">Add Teacher</button>
+            </div>
 
-            <section class="section" id="classes-section">
+            <div class="section" id="classes-section">
                 <div class="section-header">
                     <h2 class="section-title">Classes</h2>
-                    <button type="button" class="btn-add" id="add-class">+ Add Class</button>
                 </div>
                 <div class="table-wrapper">
                     <table>
@@ -560,12 +831,12 @@
                         <tbody id="classes-list"></tbody>
                     </table>
                 </div>
-            </section>
+                <button type="button" class="btn-add" id="add-class">Add Class</button>
+            </div>
 
-            <section class="section" id="time-grant-section">
+            <div class="section" id="time-grant-section">
                 <div class="section-header">
-                    <h2 class="section-title">Time Grant (Weekly Hours Per Subject)</h2>
-                    <button type="button" class="btn-add" id="add-time-grant">+ Add Subject</button>
+                    <h2 class="section-title">Time Grant</h2>
                 </div>
                 <div class="table-wrapper">
                     <table>
@@ -577,12 +848,12 @@
                         <tbody id="time-grant-list"></tbody>
                     </table>
                 </div>
-            </section>
+                <button type="button" class="btn-add" id="add-time-grant">Add Subject</button>
+            </div>
 
-            <section class="section" id="schedule-config-section">
+            <div class="section" id="schedule-config-section">
                 <div class="section-header">
                     <h2 class="section-title">Schedule Config</h2>
-                    <button type="button" class="btn-add" id="add-schedule-config">+ Add Day</button>
                 </div>
                 <div class="table-wrapper">
                     <table>
@@ -590,30 +861,31 @@
                             <tr>
                                 <th style="width: 25%;">Day</th>
                                 <th style="width: 25%;">Max Periods</th>
-                                <th>Lunch Break Options (e.g. 5, 6, 7)</th>
+                                <th>Lunch Breaks</th>
                                 <th style="width: 100px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="schedule-config-list"></tbody>
                     </table>
                 </div>
-            </section>
+                <button type="button" class="btn-add" id="add-schedule-config">Add Day</button>
+            </div>
             
             <div class="button-group">
-                <button type="button" id="save-config" class="btn-secondary">💾 Save Config</button>
-                <button type="button" id="generateButton" class="btn-primary">⚡ Generate Timetables</button>
-                <button type="button" id="viewTimetablesButton" class="btn-success">📅 View All Timetables</button>
+                <button type="button" id="save-config" class="btn-secondary">Save Config</button>
+                <button type="button" id="generateButton" class="btn-primary">Generate Timetables</button>
+                <button type="button" id="viewTimetablesButton" class="btn-success">View All Timetables</button>
                 <button type="button" id="example-config-button" class="btn-secondary">Use Example Config</button>
             </div>
-        </main>
+        </div>
 
         <!-- VIEW 2: TIMETABLE VIEWER -->
-        <main id="timetables-view" class="view-panel">
+        <div id="timetables-view" class="view-panel">
             <div class="timetable-controls">
                 <div class="controls-left">
                     <div class="view-mode-toggle" role="group" aria-label="Timetable Category">
-                        <button type="button" class="view-mode-btn active" id="mode-classes-btn" onclick="setTimetableMode('classes')">🏫 Classes</button>
-                        <button type="button" class="view-mode-btn" id="mode-teachers-btn" onclick="setTimetableMode('teachers')">👩‍🏫 Teachers</button>
+                        <button type="button" class="view-mode-btn active" id="mode-classes-btn" onclick="setTimetableMode('classes')">Classes</button>
+                        <button type="button" class="view-mode-btn" id="mode-teachers-btn" onclick="setTimetableMode('teachers')">Teachers</button>
                     </div>
 
                     <select id="entity-filter-select" class="filter-select" onchange="renderCurrentTimetables()">
@@ -624,16 +896,16 @@
                 </div>
 
                 <div class="controls-right">
-                    <button type="button" class="btn-secondary" onclick="loadTimetables(true)">🔄 Refresh</button>
-                    <button type="button" class="btn-secondary" onclick="window.print()">🖨️ Print Timetables</button>
-                    <button type="button" class="btn-primary" onclick="switchView('config')">← Edit Config</button>
+                    <button type="button" class="btn-secondary" onclick="loadTimetables(true)">Refresh</button>
+                    <button type="button" class="btn-secondary" onclick="window.print()">Print Timetables</button>
+                    <button type="button" class="btn-primary" onclick="switchView('config')">Back to Config Editor</button>
                 </div>
             </div>
 
             <div id="timetables-display-area" class="timetables-container">
                 <!-- Timetables rendered here dynamically -->
             </div>
-        </main>
+        </div>
     </div>
     
     <script>
@@ -642,6 +914,44 @@
         let currentTimetableMode = 'classes'; // 'classes' or 'teachers'
         const exampleConfigButton = document.getElementById("example-config-button");
         const statusElement = document.getElementById("status");
+
+        /* ---------------- Theme Management (New UI / Old UI Toggle) ---------------- */
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('timetable_ui_theme');
+            if (savedTheme === 'classic') {
+                document.body.classList.remove('modern-ui');
+                document.body.classList.add('classic-ui');
+            } else {
+                document.body.classList.remove('classic-ui');
+                document.body.classList.add('modern-ui');
+            }
+            updateThemeToggleButton();
+        }
+
+        function toggleUiTheme() {
+            const isClassic = document.body.classList.contains('classic-ui');
+            if (isClassic) {
+                document.body.classList.remove('classic-ui');
+                document.body.classList.add('modern-ui');
+                localStorage.setItem('timetable_ui_theme', 'modern');
+            } else {
+                document.body.classList.remove('modern-ui');
+                document.body.classList.add('classic-ui');
+                localStorage.setItem('timetable_ui_theme', 'classic');
+            }
+            updateThemeToggleButton();
+        }
+
+        function updateThemeToggleButton() {
+            const btn = document.getElementById('theme-toggle-btn');
+            if (!btn) return;
+            const isClassic = document.body.classList.contains('classic-ui');
+            btn.textContent = isClassic ? '✨ Switch to Modern UI' : '📜 Switch to Old UI';
+            btn.title = isClassic ? 'Switch to Modern redesigned UI' : 'Switch to original Classic UI';
+        }
+
+        /* ---------------- Status Messages ---------------- */
 
         function showStatus(message, type = 'info', timeout = 4000) {
             statusElement.textContent = message;
@@ -656,32 +966,39 @@
             }
         }
 
+        /* ---------------- View Switching ---------------- */
+
         function switchView(viewName) {
             const configView = document.getElementById("config-view");
             const timetablesView = document.getElementById("timetables-view");
             const tabConfig = document.getElementById("tab-config");
             const tabTimetables = document.getElementById("tab-timetables");
+            const mainHeading = document.getElementById("main-heading");
 
             if (viewName === 'timetables') {
                 configView.classList.remove("active");
                 timetablesView.classList.add("active");
-                tabConfig.classList.remove("active");
-                tabTimetables.classList.add("active");
+                if (tabConfig) tabConfig.classList.remove("active");
+                if (tabTimetables) tabTimetables.classList.add("active");
+                if (mainHeading) mainHeading.textContent = "All Timetables";
                 loadTimetables();
             } else {
                 timetablesView.classList.remove("active");
                 configView.classList.add("active");
-                tabTimetables.classList.remove("active");
-                tabConfig.classList.add("active");
+                if (tabTimetables) tabTimetables.classList.remove("active");
+                if (tabConfig) tabConfig.classList.add("active");
+                if (mainHeading) mainHeading.textContent = "Config Editor";
             }
         }
+
+        /* ---------------- Config Loading & Saving ---------------- */
 
         async function loadConfig() {
             try {
                 const response = await fetch("/config");
                 if (!response.ok) {
                     if (response.status === 404) {
-                        exampleConfigButton.style.display = "inline-flex";
+                        exampleConfigButton.style.display = document.body.classList.contains('classic-ui') ? "block" : "inline-flex";
                         config = {
                             teachers: [],
                             classes: [],
@@ -701,7 +1018,7 @@
                 );
 
                 if (isEmptyConfig) {
-                    exampleConfigButton.style.display = "inline-flex";
+                    exampleConfigButton.style.display = document.body.classList.contains('classic-ui') ? "block" : "inline-flex";
                 } else {
                     config = loadedConfig;
                 }
@@ -717,7 +1034,7 @@
                     schedule_config: {}
                 };
                 renderAll();
-                exampleConfigButton.style.display = "inline-flex";
+                exampleConfigButton.style.display = document.body.classList.contains('classic-ui') ? "block" : "inline-flex";
             }
         }
 
@@ -750,8 +1067,8 @@
             (config.teachers || []).forEach((teacher, index) => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td><input type="text" value="${escapeHtml(teacher.name)}" onchange="updateTeacher(${index}, 'name', this.value)" placeholder="Teacher Name"></td>
-                    <td><input type="text" value="${escapeHtml(teacher.subjects.join(', '))}" onchange="updateTeacher(${index}, 'subjects', this.value.split(',').map(s => s.trim()).filter(Boolean))" placeholder="Subjects (e.g. Mathematics, Physics)"></td>
+                    <td><input type="text" value="${escapeHtml(teacher.name)}" onchange="updateTeacher(${index}, 'name', this.value)"></td>
+                    <td><input type="text" value="${escapeHtml(teacher.subjects.join(', '))}" onchange="updateTeacher(${index}, 'subjects', this.value.split(',').map(s => s.trim()).filter(Boolean))"></td>
                     <td><button type="button" class="btn-danger" onclick="removeTeacher(${index})">Remove</button></td>
                 `;
                 teachersList.appendChild(row);
@@ -779,9 +1096,9 @@
             (config.classes || []).forEach((cls, index) => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td><input type="number" value="${cls.grade}" onchange="updateClass(${index}, 'grade', this.value)" placeholder="Grade"></td>
-                    <td><input type="text" value="${escapeHtml(cls.class_name)}" onchange="updateClass(${index}, 'class_name', this.value)" placeholder="e.g. 1A"></td>
-                    <td><input type="text" value="${escapeHtml(cls.class_teacher)}" onchange="updateClass(${index}, 'class_teacher', this.value)" placeholder="Class Teacher Name"></td>
+                    <td><input type="number" value="${cls.grade}" onchange="updateClass(${index}, 'grade', this.value)"></td>
+                    <td><input type="text" value="${escapeHtml(cls.class_name)}" onchange="updateClass(${index}, 'class_name', this.value)"></td>
+                    <td><input type="text" value="${escapeHtml(cls.class_teacher)}" onchange="updateClass(${index}, 'class_teacher', this.value)"></td>
                     <td><button type="button" class="btn-danger" onclick="removeClass(${index})">Remove</button></td>
                 `;
                 classesList.appendChild(row);
@@ -892,7 +1209,7 @@
                 row.innerHTML = `
                     <td><input type="text" value="${escapeHtml(day)}" onchange="updateScheduleDay('${escapeJs(day)}', this.value)"></td>
                     <td><input type="number" min="1" max="15" value="${dayConfig.max_periods}" onchange="updateSchedule('${escapeJs(day)}', 'max_periods', parseInt(this.value) || 0)"></td>
-                    <td><input type="text" value="${escapeHtml(lunchBreaks)}" onchange="updateSchedule('${escapeJs(day)}', 'lunch_breaks', this.value.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n)))" placeholder="e.g. 5, 6, 7"></td>
+                    <td><input type="text" value="${escapeHtml(lunchBreaks)}" onchange="updateSchedule('${escapeJs(day)}', 'lunch_breaks', this.value.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n)))"></td>
                     <td><button type="button" class="btn-danger" onclick="removeScheduleConfig('${escapeJs(day)}')">Remove</button></td>
                 `;
                 list.appendChild(row);
@@ -930,7 +1247,7 @@
                     (value) => Array.isArray(value) && value.length === 0 || Object.keys(value).length === 0
                 );
                 if (isEmptyConfig) {
-                    exampleConfigButton.style.display = "inline-flex";
+                    exampleConfigButton.style.display = document.body.classList.contains('classic-ui') ? "block" : "inline-flex";
                 } else {
                     exampleConfigButton.style.display = "none";
                 }
@@ -945,7 +1262,7 @@
 
         async function loadTimetables(forceRefresh = false) {
             const displayArea = document.getElementById("timetables-display-area");
-            displayArea.innerHTML = "<p style='text-align:center; padding: 40px; color: var(--gray-600);'>Loading timetables...</p>";
+            displayArea.innerHTML = "<p style='padding: 20px; text-align: center;'>Loading timetables...</p>";
             
             try {
                 const response = await fetch("/timetable" + (forceRefresh ? `?t=${Date.now()}` : ""));
@@ -955,7 +1272,7 @@
                             <div class="empty-state">
                                 <h3>No Timetable Generated Yet</h3>
                                 <p>Generate your first timetable from the Config Editor or by clicking the button below.</p>
-                                <button type="button" class="btn-primary" onclick="generateAndShowTimetable()">⚡ Generate Timetables Now</button>
+                                <button type="button" class="btn-primary" onclick="generateAndShowTimetable()">Generate Timetables Now</button>
                             </div>
                         `;
                         return;
@@ -970,7 +1287,7 @@
                 console.error("Error fetching timetable:", error);
                 displayArea.innerHTML = `
                     <div class="empty-state">
-                        <h3 style="color: var(--danger);">Error Loading Timetables</h3>
+                        <h3 style="color: var(--danger, red);">Error Loading Timetables</h3>
                         <p>${escapeHtml(error.message)}</p>
                         <button type="button" class="btn-primary" onclick="switchView('config')">Back to Config Editor</button>
                     </div>
@@ -1102,7 +1419,7 @@
                         const maxPeriodsForDay = dayConfig.max_periods || 8;
 
                         if (p > maxPeriodsForDay) {
-                            rowsHtml += `<td class="period-cell" style="background-color: var(--gray-100);"><span class="empty-slot">-</span></td>`;
+                            rowsHtml += `<td class="period-cell" style="background-color: #f1f5f9;"><span class="empty-slot">-</span></td>`;
                         } else {
                             const entry = schedule[day] && schedule[day][String(p)];
                             if (entry) {
@@ -1126,9 +1443,7 @@
                 return `
                     <div class="timetable-card">
                         <div class="timetable-card-header">
-                            <div>
-                                <h3 class="timetable-entity-title">${isClass ? '🏫 Class ' : '👩‍🏫 Teacher: '}${escapeHtml(key)}</h3>
-                            </div>
+                            <h3 class="timetable-entity-title">${isClass ? 'Class ' : 'Teacher: '}${escapeHtml(key)}</h3>
                             ${metaInfo ? `<span class="timetable-entity-meta">${metaInfo}</span>` : ''}
                         </div>
                         <div class="table-wrapper">
@@ -1220,7 +1535,8 @@
 
         exampleConfigButton.addEventListener("click", loadExampleConfig);
 
-        // Initial setup
+        // Initialize Theme & Configuration
+        initTheme();
         loadConfig();
     </script>
 </body>
