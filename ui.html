@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Config Editor</title>
     <style>
+        /* =========================================================
+           BASE / OLD UI STYLES (Default when not .modern-ui)
+           ========================================================= */
         body { font-family: Arial, sans-serif; padding: 20px; }
         .container { max-width: 1000px; margin: auto; }
         .section { margin-bottom: 20px; }
@@ -67,241 +70,132 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.12);
         }
 
-        /* Modern Timetable Viewer Styles */
+        /* Timetable controls base */
         .timetable-controls {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 14px 18px;
-            margin-bottom: 20px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            gap: 14px;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 12px;
             flex-wrap: wrap;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-
         .controls-left, .controls-right {
             display: flex;
             align-items: center;
             gap: 10px;
             flex-wrap: wrap;
         }
-
         .filter-select, .search-input {
             width: auto;
             min-width: 180px;
-            box-sizing: border-box;
-            padding: 7px 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 13px;
+            padding: 8px;
             margin: 0;
         }
-
         .view-mode-toggle {
-            display: flex;
-            background: #e2e8f0;
-            padding: 3px;
-            border-radius: 6px;
-            gap: 3px;
+            display: inline-flex;
+            gap: 4px;
         }
-
         .view-mode-btn {
-            padding: 6px 12px;
-            border-radius: 4px;
+            padding: 10px;
+            background: #ccc;
+            color: #000;
             border: none;
-            background: transparent;
-            font-size: 13px;
-            font-weight: 600;
-            color: #475569;
             cursor: pointer;
-            transition: all 0.15s ease;
         }
-
         .view-mode-btn.active {
-            background: #ffffff;
-            color: #2563eb;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            background: blue;
+            color: white;
         }
-
         .btn-ctrl {
-            padding: 7px 14px;
-            border-radius: 6px;
-            border: 1px solid #cbd5e1;
-            background: #f1f5f9;
-            color: #334155;
-            font-size: 13px;
-            font-weight: 500;
+            padding: 10px;
+            background: blue;
+            color: white;
+            border: none;
             cursor: pointer;
-            transition: all 0.15s ease;
-        }
-        .btn-ctrl:hover {
-            background: #e2e8f0;
-            color: #0f172a;
         }
         .btn-ctrl.primary {
-            background: #2563eb;
-            color: #ffffff;
-            border-color: #2563eb;
+            background: blue;
+            color: white;
         }
-        .btn-ctrl.primary:hover {
-            background: #1d4ed8;
-        }
-
-        .timetables-container {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
         .timetable-card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            break-inside: avoid;
-            page-break-inside: avoid;
+            margin-bottom: 25px;
         }
-
         .timetable-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 10px;
-            flex-wrap: wrap;
-            gap: 8px;
+            margin-bottom: 8px;
         }
-
         .timetable-entity-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #0f172a;
             margin: 0;
+            display: inline-block;
         }
-
         .timetable-entity-meta {
-            font-size: 0.85rem;
-            color: #475569;
-            background: #f1f5f9;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-weight: 500;
+            margin-left: 10px;
+            color: #555;
+            font-size: 0.9em;
         }
-
         .timetable-grid-wrapper {
             overflow-x: auto;
         }
-
         .timetable-grid {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
-            margin: 0;
+            margin-top: 5px;
         }
-
         .timetable-grid th, .timetable-grid td {
-            border: 1px solid #e2e8f0;
+            border: 1px solid #ccc;
+            padding: 8px;
             text-align: center;
-            padding: 8px 6px;
-            vertical-align: middle;
         }
-
         .timetable-grid th {
-            background-color: #f8fafc;
-            color: #334155;
-            text-transform: capitalize;
-            font-size: 0.85rem;
-            font-weight: 600;
+            background: #f0f0f0;
+            font-weight: bold;
         }
-
-        .timetable-grid th.period-header {
-            width: 75px;
-            background-color: #f1f5f9;
-            color: #1e293b;
+        .period-header {
+            background: #e8e8e8 !important;
+            font-weight: bold;
+            width: 80px;
         }
-
-        .period-cell {
-            height: 60px;
-            background: #ffffff;
-            transition: background 0.15s ease;
-        }
-
-        .period-cell:hover {
-            background: #f8fafc;
-        }
-
         .lesson-box {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             gap: 2px;
-            height: 100%;
         }
-
         .lesson-subject {
-            font-weight: 700;
-            font-size: 0.88rem;
-            color: #0f172a;
-            line-height: 1.2;
+            font-weight: bold;
         }
-
         .lesson-subinfo {
-            font-size: 0.75rem;
-            color: #475569;
-            background: #f1f5f9;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-top: 2px;
-            max-width: 95%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            font-size: 0.85em;
+            color: #333;
         }
-
         .empty-slot {
-            color: #94a3b8;
-            font-size: 1rem;
+            color: #999;
         }
-
         .empty-state {
             text-align: center;
-            padding: 50px 20px;
-            background: #ffffff;
-            border-radius: 8px;
-            border: 1px dashed #cbd5e1;
+            padding: 40px 10px;
         }
 
-        .empty-state h3 {
-            font-size: 1.25rem;
-            color: #1e293b;
-            margin-bottom: 8px;
-        }
-
-        .empty-state p {
-            color: #64748b;
-            margin-bottom: 16px;
-        }
-
-        /* Modern UI theme overrides for Config Editor (when toggled) */
+        /* =========================================================
+           MODERN UI THEME OVERRIDES (Active when .modern-ui)
+           ========================================================= */
         body.modern-ui {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: #f8fafc;
             color: #1e293b;
         }
         body.modern-ui .container {
-            max-width: 1100px;
+            max-width: 1150px;
         }
         body.modern-ui input, body.modern-ui select {
             box-sizing: border-box;
             border: 1px solid #cbd5e1;
             border-radius: 6px;
             padding: 8px 12px;
+        }
+        body.modern-ui input:focus, body.modern-ui select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
         }
         body.modern-ui table {
             margin-bottom: 12px;
@@ -317,6 +211,7 @@
             border-radius: 6px;
             background: #2563eb;
             font-weight: 500;
+            transition: background 0.15s ease;
         }
         body.modern-ui button:hover {
             background: #1d4ed8;
@@ -330,6 +225,102 @@
         }
         body.modern-ui th, body.modern-ui td {
             border: 1px solid #e2e8f0;
+        }
+
+        body.modern-ui .timetable-controls {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 14px 18px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        body.modern-ui .view-mode-toggle {
+            background: #e2e8f0;
+            padding: 3px;
+            border-radius: 6px;
+        }
+        body.modern-ui .view-mode-btn {
+            border-radius: 4px;
+            padding: 6px 12px;
+            background: transparent;
+            color: #475569;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        body.modern-ui .view-mode-btn.active {
+            background: #ffffff;
+            color: #2563eb;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+        body.modern-ui .btn-ctrl {
+            padding: 7px 14px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #f1f5f9;
+            color: #334155;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        body.modern-ui .btn-ctrl:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+        body.modern-ui .btn-ctrl.primary {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+        }
+        body.modern-ui .btn-ctrl.primary:hover {
+            background: #1d4ed8;
+        }
+        body.modern-ui .timetable-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        body.modern-ui .timetable-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+        }
+        body.modern-ui .timetable-entity-meta {
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: #475569;
+        }
+        body.modern-ui .timetable-grid th {
+            background-color: #f8fafc;
+            color: #334155;
+        }
+        body.modern-ui .timetable-grid th.period-header {
+            background-color: #f1f5f9 !important;
+            color: #1e293b;
+        }
+        body.modern-ui .period-cell {
+            height: 60px;
+            background: #ffffff;
+            transition: background 0.15s ease;
+        }
+        body.modern-ui .period-cell:hover {
+            background: #f8fafc;
+        }
+        body.modern-ui .lesson-subinfo {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #475569;
+        }
+        body.modern-ui .empty-state {
+            background: #ffffff;
+            border-radius: 8px;
+            border: 1px dashed #cbd5e1;
+            padding: 50px 20px;
         }
 
         /* Print styles */
@@ -448,8 +439,8 @@
             <div class="timetable-controls">
                 <div class="controls-left">
                     <div class="view-mode-toggle" role="group" aria-label="Timetable Category">
-                        <button type="button" class="view-mode-btn active" id="mode-classes-btn" onclick="setTimetableMode('classes')">🏫 Classes</button>
-                        <button type="button" class="view-mode-btn" id="mode-teachers-btn" onclick="setTimetableMode('teachers')">👩‍🏫 Teachers</button>
+                        <button type="button" class="view-mode-btn active" id="mode-classes-btn" onclick="setTimetableMode('classes')">Classes</button>
+                        <button type="button" class="view-mode-btn" id="mode-teachers-btn" onclick="setTimetableMode('teachers')">Teachers</button>
                     </div>
 
                     <select id="entity-filter-select" class="filter-select" onchange="renderCurrentTimetables()">
@@ -460,9 +451,9 @@
                 </div>
 
                 <div class="controls-right">
-                    <button type="button" class="btn-ctrl" onclick="loadTimetables(true)">🔄 Refresh</button>
-                    <button type="button" class="btn-ctrl" onclick="window.print()">🖨️ Print Timetables</button>
-                    <button type="button" class="btn-ctrl primary" onclick="switchView('config')">← Back to Config Editor</button>
+                    <button type="button" class="btn-ctrl" onclick="loadTimetables(true)">Refresh</button>
+                    <button type="button" class="btn-ctrl" onclick="window.print()">Print Timetables</button>
+                    <button type="button" class="btn-ctrl primary" onclick="switchView('config')">Back to Config Editor</button>
                 </div>
             </div>
 
@@ -743,9 +734,9 @@
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td><input type="text" value="${escapeHtml(day)}" onchange="updateScheduleDay('${escapeJs(day)}', this.value)"></td>
-                    <td><input type="number" value="${config.schedule_config[day].max_periods}" onchange="updateSchedule('${escapeJs(day)}', 'max_periods', this.value)"></td>
-                    <td><input type="text" value="${(config.schedule_config[day].lunch_breaks || []).join(', ')}" onchange="updateSchedule('${escapeJs(day)}', 'lunch_breaks', this.value.split(',').map(Number))"></td>
-                    <td><button onclick="removeScheduleConfig('${escapeJs(day)}')">Remove</button></td>
+                    <td><input type="number" value="${config.schedule_config[day].max_periods}" onchange="updateSchedule('${day}', 'max_periods', this.value)"></td>
+                    <td><input type="text" value="${(config.schedule_config[day].lunch_breaks || []).join(', ')}" onchange="updateSchedule('${day}', 'lunch_breaks', this.value.split(',').map(Number))"></td>
+                    <td><button onclick="removeScheduleConfig('${day}')">Remove</button></td>
                 `;
                 list.appendChild(row);
             });
@@ -792,11 +783,11 @@
             }
         }
 
-        /* ---------------- Modern Timetable Viewer Logic ---------------- */
+        /* ---------------- Timetable Viewer Logic ---------------- */
 
         async function loadTimetables(forceRefresh = false) {
             const displayArea = document.getElementById("timetables-display-area");
-            displayArea.innerHTML = "<p style='text-align:center; padding: 40px; color: #64748b;'>Loading timetables...</p>";
+            displayArea.innerHTML = "<p style='text-align:center; padding: 20px;'>Loading timetables...</p>";
             
             try {
                 const response = await fetch("/timetable" + (forceRefresh ? `?t=${Date.now()}` : ""));
@@ -806,7 +797,7 @@
                             <div class="empty-state">
                                 <h3>No Timetable Generated Yet</h3>
                                 <p>Generate your first timetable from the Config Editor or click below.</p>
-                                <button type="button" class="btn-ctrl primary" onclick="generateAndShowTimetable()" style="padding: 10px 20px; font-size: 14px;">⚡ Generate Timetables Now</button>
+                                <button type="button" class="btn-ctrl primary" onclick="generateAndShowTimetable()" style="padding: 10px 20px;">⚡ Generate Timetables Now</button>
                             </div>
                         `;
                         return;
@@ -821,7 +812,7 @@
                 console.error("Error fetching timetable:", error);
                 displayArea.innerHTML = `
                     <div class="empty-state">
-                        <h3 style="color: #dc2626;">Error Loading Timetables</h3>
+                        <h3 style="color: red;">Error Loading Timetables</h3>
                         <p>${escapeHtml(error.message)}</p>
                         <button type="button" class="btn-ctrl primary" onclick="switchView('config')">Back to Config Editor</button>
                     </div>
@@ -951,7 +942,7 @@
                         const maxPeriodsForDay = dayConfig.max_periods || 8;
 
                         if (p > maxPeriodsForDay) {
-                            rowsHtml += `<td class="period-cell" style="background-color: #f1f5f9;"><span class="empty-slot">-</span></td>`;
+                            rowsHtml += `<td class="period-cell"><span class="empty-slot">-</span></td>`;
                         } else {
                             const entry = schedule[day] && schedule[day][String(p)];
                             if (entry) {
@@ -975,7 +966,7 @@
                 return `
                     <div class="timetable-card">
                         <div class="timetable-card-header">
-                            <h3 class="timetable-entity-title">${isClass ? '🏫 Class ' : '👩‍🏫 Teacher: '}${escapeHtml(key)}</h3>
+                            <h3 class="timetable-entity-title">${isClass ? 'Class ' : 'Teacher: '}${escapeHtml(key)}</h3>
                             ${metaInfo ? `<span class="timetable-entity-meta">${metaInfo}</span>` : ''}
                         </div>
                         <div class="timetable-grid-wrapper">
