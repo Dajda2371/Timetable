@@ -134,7 +134,7 @@ test('viewer uses generated configuration and displays lunch as a dash', () => {
     assert.doesNotMatch(rendered, /WrongDay/);
 });
 
-test('viewer displays a dash for lunch after six lessons', () => {
+test('viewer grays out lunch beyond max_periods and displays a dash', () => {
     const h = harness(async () => { throw new Error('Unexpected request'); });
     h.run(`
         const lessons = Object.fromEntries(Array.from({length: 6}, (_, i) =>
@@ -152,7 +152,7 @@ test('viewer displays a dash for lunch after six lessons', () => {
     assert.match(rendered, /Period 7/);
     assert.doesNotMatch(rendered, /Period 8/);
     assert.equal((rendered.match(/lesson-subject/g) || []).length, 6);
-    assert.match(rendered, /empty-slot">-<\/span><\/td><\/tr>/);
+    assert.match(rendered, /<td class="period-cell" style="background-color: #f1f5f9;"><span class="empty-slot">-<\/span><\/td><\/tr>/);
     assert.doesNotMatch(rendered, /Lunch/);
 });
 
