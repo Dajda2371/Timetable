@@ -1,12 +1,14 @@
 import webbrowser
 import json
-import random
 import os
-import platform
 from typing import Dict, Any
+from contextlib import asynccontextmanager
+
+from generation_jobs import GenerationBusy, GenerationJobs
+from scheduler import ConfigError
 
 import uvicorn
-from fastapi import FastAPI, HTTPException, Request, Body
+from fastapi import FastAPI, HTTPException, Body
 from fastapi.responses import FileResponse, JSONResponse
 
 # Constants
@@ -21,7 +23,16 @@ else:
     TIMETABLE_FILE = "data/timetable.json"
     DATA_DIRECTORY = "data"
 
-app = FastAPI()
+jobs = GenerationJobs()
+
+
+@asynccontextmanager
+async def lifespan(app):
+    yield
+    jobs.shutdown()
+
+
+app = FastAPI(lifespan=lifespan)
 
 def run_ui():
     # Opens the UI in a web browser.
@@ -51,73 +62,6 @@ def save_config(data):
     os.makedirs(os.path.dirname(CONFIG_FILE), exist_ok=True)
     with open(CONFIG_FILE, "w") as f:
         json.dump(data, f, indent=4)
-
-def generate_timetable(config):
-    teachers = {t["name"]: t["subjects"] for t in config["teachers"]}
-    classes = config["classes"]
-    time_grant = config["time_grant"]
-    schedule_config = config["schedule_config"]
-
-    timetable = {teacher: {} for teacher in teachers}
-    class_timetable = {cls["class_name"]: {} for cls in classes}
-
-    assigned_hours = {cls["class_name"]: {subj: 0 for subj in time_grant[str(cls["grade"])]} for cls in classes}
-    subject_teachers = {}
-
-    for cls in classes:
-        class_name = cls["class_name"]
-        class_teacher = cls["class_teacher"]
-        grade = str(cls["grade"])
-
-        for subject in time_grant[grade]:
-            if subject in teachers[class_teacher]:
-                subject_teachers.setdefault(class_name, {})[subject] = class_teacher
-            else:
-                available_teachers = [t for t, subs in teachers.items() if subject in subs]
-                if available_teachers:
-                    subject_teachers.setdefault(class_name, {})[subject] = random.choice(available_teachers)
-
-    for day, config_day in schedule_config.items():
-        max_periods = config_day["max_periods"]
-        lunch_breaks = config_day.get("lunch_breaks", [])
-
-        # Only one lunch break per day, randomly chosen from lunch_breaks
-        lunch_period = random.choice(lunch_breaks) if lunch_breaks else None
-
-        available_classes = set(cls["class_name"] for cls in classes)
-
-        for period in range(1, max_periods + 1):
-            if lunch_period and period == lunch_period:
-                # Skip writing this period (lunch break)
-                continue
-
-            available_teachers = set(teachers.keys())
-
-            for cls in classes:
-                class_name = cls["class_name"]
-                grade = str(cls["grade"])
-
-                if class_name not in available_classes:
-                    continue
-
-                subjects_needed = [s for s, h in time_grant[grade].items() if assigned_hours[class_name][s] < h]
-
-                if not subjects_needed:
-                    continue
-
-                subject = random.choice(subjects_needed)
-                teacher = subject_teachers[class_name][subject]
-
-                if teacher not in available_teachers:
-                    continue
-
-                timetable[teacher].setdefault(day, {})[period] = {"class": class_name, "subject": subject}
-                class_timetable[class_name].setdefault(day, {})[period] = {"teacher": teacher, "subject": subject}
-
-                assigned_hours[class_name][subject] += 1
-                available_teachers.remove(teacher)
-
-    return timetable, class_timetable
 
 @app.get("/config")
 def get_config():
@@ -154,26 +98,40 @@ def save_config_endpoint(config: Dict[str, Any] = Body(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail="Error saving config: " + str(e))
 
+def start_generation(config):
+    try:
+        return jobs.submit(config, TIMETABLE_FILE)
+    except ConfigError as exc:
+        raise HTTPException(status_code=422, detail={"message": "Invalid configuration.", "issues": exc.issues}) from exc
+    except GenerationBusy as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@app.post("/generation-jobs", status_code=202)
+def create_generation_job(config: Dict[str, Any] = Body(...)):
+    job_id, _ = start_generation(config)
+    return {"job_id": job_id, "status_url": f"/generation-jobs/{job_id}"}
+
+
+@app.get("/generation-jobs/{job_id}")
+def get_generation_job(job_id: str):
+    job = jobs.get(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Generation job not found. Job history resets when the server restarts.")
+    return job
+
+
 @app.get("/generate")
 def generate():
-    try:
-        config = load_config()
-        if config is None:
-             raise Exception("Config is empty")
+    # Compatibility endpoint: uses the saved configuration and waits for the same
+    # single-worker pipeline used by the new asynchronous browser flow.
+    _, future = start_generation(load_config())
+    result = future.result()
+    if result["status"] == "succeeded":
+        return result
+    code = {"infeasible": 422, "timeout": 408}.get(result["status"], 500)
+    raise HTTPException(status_code=code, detail=result["message"])
 
-        timetable, class_timetable = generate_timetable(config)
-        data = {
-            "teachers_timetable": timetable,
-            "classes_timetable": class_timetable
-        }
-
-        with open(TIMETABLE_FILE, "w") as f:
-            json.dump(data, f, indent=4)
-
-        print("Timetable generated and saved.")
-        return {"message": "Timetable saved successfully!"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Error generating timetable: " + str(e))
 
 @app.get("/timetable")
 @app.get("/timetables")

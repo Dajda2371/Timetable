@@ -9,8 +9,15 @@ license-files = ["LICENSE"]
 authors = [{ name = "David Beneš" }]
 dependencies = [
     "fastapi",
+    "ortools>=9.15,<9.16",
     "uvicorn",
 ]
 
 [tool.uv]
 package = false
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.1",
+]

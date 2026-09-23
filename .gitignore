@@ -1,2 +1,4 @@
 data/config.json
 data/timetable.json
+__pycache__/
+.pytest_cache/

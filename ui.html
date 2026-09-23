@@ -393,15 +393,16 @@
             </div>
         </div>
         
+        <p id="status" role="status" aria-live="polite" style="white-space: pre-line;"></p>
+
         <!-- Config Section -->
         <div id="config-container">
             <div class="button-group">
                 <button id="save-config">Save Config</button>
-                <button id="generateButton">Generate Timetables</button>
+                <button id="generateButton" data-generate>Generate Timetables</button>
                 <button id="viewTimetablesButton">See All Timetables</button>
                 <button id="example-config-button">Use Example Config</button>
             </div>
-            <p id="status"></p>
 
             <div class="section" id="teachers-section">
                 <h2>Teachers</h2>
@@ -449,12 +450,13 @@
 
             <div class="section" id="schedule-config-section">
                 <h2>Schedule Config</h2>
+                <p>Each class gets one lunch period from the allowed periods each day. Leave blank for no reserved lunch.</p>
                 <table>
                     <thead>
                         <tr>
                             <th>Day</th>
                             <th>Max Periods</th>
-                            <th>Lunch Breaks</th>
+                            <th>Allowed Lunch Periods</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -496,6 +498,8 @@
     <script>
         let config = {};
         let timetableData = null;
+        let generationRunning = false;
+        let activeGenerationId = localStorage.getItem("timetable_generation_id");
         let currentTimetableMode = 'classes'; // 'classes' or 'teachers'
         const exampleConfigButton = document.getElementById("example-config-button");
 
@@ -738,7 +742,7 @@
         }
 
         function updateTimeGrant(grade, subject, value) {
-            config.time_grant[grade][subject] = parseInt(value) || 0;
+            config.time_grant[grade][subject] = Number(value);
         }
 
         function updateTimeGrantSubject(oldSubject, newSubject) {
@@ -765,7 +769,7 @@
                 row.innerHTML = `
                     <td><input type="text" value="${escapeHtml(day)}" onchange="updateScheduleDay('${escapeJs(day)}', this.value)"></td>
                     <td><input type="number" value="${config.schedule_config[day].max_periods}" onchange="updateSchedule('${day}', 'max_periods', this.value)"></td>
-                    <td><input type="text" value="${(config.schedule_config[day].lunch_breaks || []).join(', ')}" onchange="updateSchedule('${day}', 'lunch_breaks', this.value.split(',').map(Number))"></td>
+                    <td><input type="text" value="${(config.schedule_config[day].lunch_breaks || []).join(', ')}" onchange="updateSchedule('${day}', 'lunch_breaks', this.value.split(',').map(s => s.trim()).filter(Boolean).map(Number))"></td>
                     <td><button onclick="removeScheduleConfig('${day}')">Remove</button></td>
                 `;
                 list.appendChild(row);
@@ -773,7 +777,7 @@
         }
 
         function updateSchedule(day, field, value) {
-            config.schedule_config[day][field] = value;
+            config.schedule_config[day][field] = field === "max_periods" ? Number(value) : value;
         }
 
         function updateScheduleDay(oldDay, newDay) {
@@ -795,6 +799,7 @@
                     body: JSON.stringify(config),
                 });
                 const data = await response.json();
+                if (!response.ok) throw new Error(apiError(data));
                 document.getElementById("status").textContent = data.message;
                 
                 // Check if the config is now empty and show the button if so
@@ -809,7 +814,7 @@
                 renderAll();
             } catch (error) {
                 console.error("Error saving config:", error);
-                document.getElementById("status").textContent = "Failed to save config.";
+                document.getElementById("status").textContent = "Failed to save config: " + error.message;
             }
         }
 
@@ -827,7 +832,7 @@
                             <div class="empty-state">
                                 <h3>No Timetable Generated Yet</h3>
                                 <p>Generate your first timetable from the Config Editor or click below.</p>
-                                <button type="button" class="btn-ctrl primary" onclick="generateAndShowTimetable()" style="padding: 10px 20px;">⚡ Generate Timetables Now</button>
+                                <button type="button" class="btn-ctrl primary" data-generate ${generationRunning ? "disabled" : ""} onclick="generateAndShowTimetable()" style="padding: 10px 20px;">⚡ Generate Timetables Now</button>
                             </div>
                         `;
                         return;
@@ -850,18 +855,78 @@
             }
         }
 
+        function apiError(data) {
+            const detail = data.detail || data.message || "Request failed";
+            if (typeof detail === "string") return detail;
+            if (Array.isArray(detail)) return detail.map(e => e.msg || JSON.stringify(e)).join("\n");
+            return [detail.message, ...(detail.issues || [])].filter(Boolean).join("\n");
+        }
+
+        function setGenerationBusy(busy) {
+            generationRunning = busy;
+            document.querySelectorAll("[data-generate]").forEach(button => button.disabled = busy);
+        }
+
+        async function monitorGeneration(jobId) {
+            const phases = {
+                queued: "Waiting to start", validating: "Checking configuration",
+                building: "Preparing schedule", finding_feasible: "Finding a complete timetable",
+                optimizing_class_gaps: "Reducing student gaps",
+                optimizing_subject_repetitions: "Spreading subjects across the week",
+                optimizing_daily_imbalance: "Balancing daily lessons",
+                optimizing_teacher_gaps: "Reducing teacher gaps",
+                optimizing_non_class_teacher_assignments: "Improving teacher assignments",
+                verifying: "Checking the timetable", saving: "Saving the timetable"
+            };
+            while (true) {
+                const response = await fetch(`/generation-jobs/${encodeURIComponent(jobId)}`);
+                const job = await response.json();
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        activeGenerationId = null;
+                        localStorage.removeItem("timetable_generation_id");
+                    }
+                    throw new Error(apiError(job));
+                }
+                if (job.status !== "running") {
+                    activeGenerationId = null;
+                    localStorage.removeItem("timetable_generation_id");
+                    if (job.status !== "succeeded") throw new Error(job.message);
+                    const quality = job.quality_metrics;
+                    document.getElementById("status").textContent = job.message +
+                        (job.outcome === "optimal" ? " All quality targets optimized." : " Best complete result found within the search budget.") +
+                        (quality ? ` Student gaps: ${quality.class_gaps}; repeated subjects in a day: ${quality.subject_repetitions}; teacher gaps: ${quality.teacher_gaps}.` : "");
+                    switchView("timetables");
+                    return;
+                }
+                document.getElementById("status").textContent = `${phases[job.phase] || "Generating"}… ${Math.round(job.elapsed_seconds)}s elapsed. Search can take up to three minutes, plus preparation.`;
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+
         async function generateAndShowTimetable() {
-            const statusMsg = document.getElementById("status");
-            if (statusMsg) statusMsg.textContent = "Generating timetables...";
+            if (generationRunning) return;
+            setGenerationBusy(true);
+            document.getElementById("status").textContent = "Starting generation…";
             try {
-                const response = await fetch("/generate");
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.detail || "Generation failed");
-                if (statusMsg) statusMsg.textContent = data.message || "Timetables generated successfully!";
-                await loadTimetables(true);
+                if (!activeGenerationId) {
+                    // JSON serialization captures the current editor, even if it
+                    // has not been saved. Later edits do not change this job.
+                    const response = await fetch("/generation-jobs", {
+                        method: "POST", headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify(config)
+                    });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(apiError(data));
+                    activeGenerationId = data.job_id;
+                    localStorage.setItem("timetable_generation_id", activeGenerationId);
+                }
+                await monitorGeneration(activeGenerationId);
             } catch (error) {
-                console.error("Error:", error);
-                if (statusMsg) statusMsg.textContent = "Failed to generate timetables: " + error.message;
+                document.getElementById("status").textContent = error.message +
+                    (activeGenerationId ? " Generation may still be running. Click Generate again to check its status." : "");
+            } finally {
+                setGenerationBusy(false);
             }
         }
 
@@ -937,8 +1002,9 @@
                 return;
             }
 
-            const scheduleConfig = (config.schedule_config && Object.keys(config.schedule_config).length > 0)
-                ? config.schedule_config 
+            const savedConfig = timetableData.metadata?.configuration || config;
+            const scheduleConfig = (savedConfig.schedule_config && Object.keys(savedConfig.schedule_config).length > 0)
+                ? savedConfig.schedule_config
                 : getDefaultDaysFromData(dataSource);
 
             const days = Object.keys(scheduleConfig);
@@ -952,13 +1018,13 @@
                 const schedule = dataSource[key] || {};
                 
                 let metaInfo = "";
-                if (isClass && config.classes) {
-                    const clsInfo = config.classes.find(c => c.class_name === key);
+                if (isClass && savedConfig.classes) {
+                    const clsInfo = savedConfig.classes.find(c => c.class_name === key);
                     if (clsInfo) {
-                        metaInfo = `Grade ${clsInfo.grade} • Class Teacher: ${escapeHtml(clsInfo.class_teacher || 'None')}`;
+                        metaInfo = `Grade ${escapeHtml(clsInfo.grade)} • Class Teacher: ${escapeHtml(clsInfo.class_teacher || 'None')}`;
                     }
-                } else if (!isClass && config.teachers) {
-                    const tInfo = config.teachers.find(t => t.name === key);
+                } else if (!isClass && savedConfig.teachers) {
+                    const tInfo = savedConfig.teachers.find(t => t.name === key);
                     if (tInfo && tInfo.subjects) {
                         metaInfo = `Subjects: ${escapeHtml(tInfo.subjects.join(', '))}`;
                     }
@@ -976,7 +1042,10 @@
                             rowsHtml += `<td class="period-cell" style="background-color: #f1f5f9;"><span class="empty-slot">-</span></td>`;
                         } else {
                             const entry = schedule[day] && schedule[day][String(p)];
-                            if (entry) {
+                            const isLunch = isClass && timetableData.metadata?.class_lunches?.[key]?.[day] === p;
+                            if (isLunch) {
+                                rowsHtml += `<td class="period-cell"><span class="empty-slot">Lunch</span></td>`;
+                            } else if (entry) {
                                 const subInfo = isClass ? `👨‍🏫 ${escapeHtml(entry.teacher || '')}` : `🏫 Class ${escapeHtml(entry.class || '')}`;
                                 rowsHtml += `
                                     <td class="period-cell">
@@ -1072,17 +1141,7 @@
 
         document.getElementById("save-config").addEventListener("click", saveConfig);
 
-        document.getElementById("generateButton").addEventListener("click", function() {
-            fetch("/generate")
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("status").textContent = data.message;
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    document.getElementById("status").textContent = "Failed to generate timetables.";
-                });
-        });
+        document.getElementById("generateButton").addEventListener("click", generateAndShowTimetable);
 
         document.getElementById("viewTimetablesButton").addEventListener("click", () => switchView('timetables'));
 
@@ -1090,7 +1149,9 @@
 
         // Initial setup
         initTheme();
-        loadConfig();
+        loadConfig().then(() => {
+            if (activeGenerationId) generateAndShowTimetable();
+        });
     </script>
 </body>
 </html>
