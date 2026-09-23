@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Timetable (uv)" type="UvRunConfigurationType" factoryName="UvRunConfigurationType">
+    <option name="checkSync" value="true" />
+    <option name="runType" value="SCRIPT" />
+    <option name="scriptOrModule" value="$PROJECT_DIR$/program.py" />
+    <option name="uvSdkKey" value="~/code/Timetable/.venv" />
+    <method v="2" />
+  </configuration>
+</component>
