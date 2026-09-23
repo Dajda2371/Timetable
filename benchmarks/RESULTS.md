@@ -34,6 +34,7 @@ optimal timetable.
 The example fixture separately passes exact coverage checks for all 204 required
 lessons. Before the replacement, 100 seeded runs of the greedy algorithm scheduled
 177–203 of those lessons, with no complete result. These measurements predate
-support for lunch immediately after the last lesson period. The example retains
+support for lunch immediately after the last lesson period and the mandatory
+free lunch period for teachers. The example retains
 `[5, 6, 7]` on six-period days: lunch at 7 permits six consecutive lessons. The
 synthetic benchmarks use eight-period days with lunch inside the teaching day.

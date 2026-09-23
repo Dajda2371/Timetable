@@ -33,11 +33,56 @@ def test_teacher_assignment_can_move_away_from_class_teacher():
     assert result.data["metadata"]["quality_metrics"]["non_class_teacher_assignments"] == 1
 
 
-def test_lunches_can_stagger_to_share_a_teacher():
-    c = small_config(teachers=1, hours=1, lunch=[1, 2])
+def test_teachers_have_a_free_lunch_period_every_day():
+    c = small_config(teachers=1, hours=2, periods=3, lunch=[1, 2])
+    c["schedule_config"]["Tue"] = deepcopy(c["schedule_config"]["Mon"])
+    c["teachers"].append({"name": "Idle", "subjects": []})
+    result = solve(c)
+    assert result.data is not None
+    verify_timetable(c, result.data)
+    for teacher, days in result.data["teachers_timetable"].items():
+        for day in c["schedule_config"]:
+            lessons = days.get(day, {})
+            assert any(str(p) not in lessons for p in (1, 2))
+            if teacher == "T0":
+                assert len(lessons) == 2
+                assert "3" in lessons
+
+
+def test_teacher_capacity_reserves_a_lunch_opportunity():
+    c = small_config(classes=3, teachers=1, hours=1, periods=3, lunch=[1, 2])
+    with pytest.raises(ConfigError, match="Teachers T0 need 3 lessons but have only 2 slots"):
+        normalize_config(c)
+
+
+def test_verifier_rejects_teacher_busy_through_entire_lunch_window():
+    c = small_config(teachers=1, hours=1, periods=3, lunch=[1, 2])
+    # Class lunches are individually valid and weekly teacher capacity fits,
+    # but teaching different classes at 1 and 2 leaves no teacher lunch.
+    data = {
+        "classes_timetable": {
+            "C0": {"Mon": {"1": {"teacher": "T0", "subject": "Math"}}},
+            "C1": {"Mon": {"2": {"teacher": "T0", "subject": "Math"}}},
+        },
+        "teachers_timetable": {"T0": {"Mon": {
+            "1": {"class": "C0", "subject": "Math"},
+            "2": {"class": "C1", "subject": "Math"},
+        }}},
+        "metadata": {"class_lunches": {"C0": {"Mon": 2}, "C1": {"Mon": 1}}},
+    }
+    with pytest.raises(ValueError, match="No free lunch period for teacher T0 on Mon"):
+        verify_timetable(c, data)
+    # Adding 3 to the window gives the teacher a break without requiring
+    # classes and teachers to take lunch together.
+    c["schedule_config"]["Mon"]["lunch_breaks"].append(3)
+    verify_timetable(c, data)
+
+
+def test_no_lunch_window_allows_a_teacher_to_use_all_periods():
+    c = small_config(teachers=1, hours=1, periods=2)
     result = solve(c)
     verify_timetable(c, result.data)
-    assert {l["Mon"] for l in result.data["metadata"]["class_lunches"].values()} == {1, 2}
+    assert set(result.data["teachers_timetable"]["T0"]["Mon"]) == {"1", "2"}
 
 
 @pytest.mark.parametrize("lunch", [[5, 6, 7], [7]])

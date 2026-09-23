@@ -127,7 +127,9 @@ def normalize_config(raw):
         d["max_periods"] - int(bool(d["lunch_breaks"]) and d["max_periods"] + 1 not in d["lunch_breaks"])
         for d in days.values()
     )
-    teacher_capacity = sum(d["max_periods"] for d in days.values())
+    # Teachers need the same daily lunch opportunity as classes. An allowed
+    # lunch after the final teaching slot is already free for everyone.
+    teacher_capacity = class_capacity
     # Demand sharing exactly the same eligible teacher pool gives useful, sound
     # capacity diagnostics, including several subjects with one sole teacher.
     pools = defaultdict(list)
@@ -268,6 +270,9 @@ def _build_model(c):
                 o = model.new_bool_var("")
                 model.add(o == sum(teacher_slots[t, day, p]))
                 occupied.append(o)
+            candidates = spec["lunch_breaks"]
+            if candidates and spec["max_periods"] + 1 not in candidates:
+                model.add(sum(occupied[p - 1] for p in candidates) <= len(candidates) - 1)
             penalties[METRICS[3]].extend(_gap_terms(model, occupied))
     return model, lessons, lunches, {k: sum(v) for k, v in penalties.items()}
 
@@ -432,3 +437,9 @@ def verify_timetable(raw, data):
             raise ValueError(f"Incorrect lesson coverage for {cn}: expected {dict(expected)}, got {dict(counts)}.")
     if data["teachers_timetable"] != expected_teachers:
         raise ValueError("Teacher and class timetables disagree.")
+    for teacher, days in expected_teachers.items():
+        for day, spec in c["schedule_config"].items():
+            candidates = spec["lunch_breaks"]
+            lessons = days.get(day, {})
+            if candidates and all(str(p) in lessons for p in candidates):
+                raise ValueError(f"No free lunch period for teacher {teacher} on {day}.")

@@ -29,6 +29,9 @@ status polling for the last job started in that browser.
   `max_periods: 6` with lunch candidates `[5, 6, 7]` allows six lessons followed
   by lunch at 7. Lunch within periods 1–6 uses one of those teaching slots;
   lunch at 7 does not add a seventh teaching slot.
+- Each teacher must be free during at least one allowed lunch period every day.
+  Teachers may take lunch at different times from their classes. A lunch period
+  after `max_periods` also satisfies this rule; an empty list imposes no lunch rule.
 - Subject hours must be nonnegative integers. Period counts must be positive
   integers; lunch candidates must be between 1 and `max_periods + 1`. Zero-hour subjects do not
   require a qualified teacher.
@@ -41,7 +44,9 @@ optimum has not been proved. These preferences never make a valid schedule
 infeasible.
 
 A gap is an unused period between the first and last lesson. A class's lunch is
-excluded from its gap count; teachers have no mandatory lunch in this version.
+excluded from its gap count. The teacher-gap metric counts all gaps, including
+free lunch periods between lessons; the required lunch opportunity is always
+preserved regardless of that quality preference.
 Daily workload imbalance is the difference between each class's busiest and
 lightest configured day, summed across classes. Repetitions count lessons beyond
 the first occurrence of a subject on the same day.
