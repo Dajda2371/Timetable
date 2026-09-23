@@ -1046,7 +1046,7 @@
                     for (let p = 1; p <= maxPeriodOverall; p++) {
                         const isLunch = isClass && timetableData.metadata?.class_lunches?.[key]?.[day] === p;
                         if (isLunch) {
-                            rowsHtml += `<td class="period-cell"><span class="empty-slot">Lunch</span></td>`;
+                            rowsHtml += `<td class="period-cell"><span class="empty-slot">-</span></td>`;
                         } else if (p > maxPeriodsForDay) {
                             rowsHtml += `<td class="period-cell" style="background-color: #f1f5f9;"><span class="empty-slot">-</span></td>`;
                         } else {

@@ -111,7 +111,7 @@ test('network failure keeps job identity so retry checks the existing job', asyn
     assert.match(h.element('status').textContent, /may still be running/);
 });
 
-test('viewer uses generated configuration and renders per-class lunch', () => {
+test('viewer uses generated configuration and displays lunch as a dash', () => {
     const h = harness(async () => { throw new Error('Unexpected request'); });
     h.run(`
         config = {schedule_config: {WrongDay: {max_periods: 1}}};
@@ -129,11 +129,12 @@ test('viewer uses generated configuration and renders per-class lunch', () => {
     const rendered = h.element('timetables-display-area').innerHTML;
     assert.match(rendered, /Monday/);
     assert.match(rendered, /Original grade/);
-    assert.match(rendered, /Lunch/);
+    assert.match(rendered, /empty-slot">-<\/span><\/td><\/tr>/);
+    assert.doesNotMatch(rendered, /Lunch/);
     assert.doesNotMatch(rendered, /WrongDay/);
 });
 
-test('viewer shows lunch after six lessons without adding a teaching slot', () => {
+test('viewer displays a dash for lunch after six lessons', () => {
     const h = harness(async () => { throw new Error('Unexpected request'); });
     h.run(`
         const lessons = Object.fromEntries(Array.from({length: 6}, (_, i) =>
@@ -151,7 +152,8 @@ test('viewer shows lunch after six lessons without adding a teaching slot', () =
     assert.match(rendered, /Period 7/);
     assert.doesNotMatch(rendered, /Period 8/);
     assert.equal((rendered.match(/lesson-subject/g) || []).length, 6);
-    assert.match(rendered, /Lunch<\/span><\/td><\/tr>/);
+    assert.match(rendered, /empty-slot">-<\/span><\/td><\/tr>/);
+    assert.doesNotMatch(rendered, /Lunch/);
 });
 
 test('legacy timetable without metadata remains renderable', () => {

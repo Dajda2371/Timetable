@@ -58,8 +58,8 @@ Failures preserve the previous timetable. Generated files contain the original
 teacher/class maps plus `metadata`: configuration snapshot, selected class lunches,
 generation ID and timestamp, solver outcome, elapsed time, seed, proven objectives,
 and quality metrics. The viewer uses the snapshot so later editor changes cannot
-relabel an older timetable. Older files without metadata still display, but cannot
-show their originally selected lunch periods.
+relabel an older timetable. Lunch slots display a dash, like other empty slots.
+Older files without metadata still display using the current configuration.
 
 ## HTTP interfaces
 
