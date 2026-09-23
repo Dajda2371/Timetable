@@ -25,8 +25,12 @@ status polling for the last job started in that browser.
   preferred, but another qualified teacher may be selected.
 - Each class gets one lunch per day from that day's **Allowed Lunch Periods**.
   Classes can take lunch at different times. An empty list reserves no lunch.
+  Lunch may be at `max_periods + 1`, immediately after the last lesson period:
+  `max_periods: 6` with lunch candidates `[5, 6, 7]` allows six lessons followed
+  by lunch at 7. Lunch within periods 1–6 uses one of those teaching slots;
+  lunch at 7 does not add a seventh teaching slot.
 - Subject hours must be nonnegative integers. Period counts must be positive
-  integers; lunch candidates must be within the day. Zero-hour subjects do not
+  integers; lunch candidates must be between 1 and `max_periods + 1`. Zero-hour subjects do not
   require a qualified teacher.
 
 The scheduler first seeks a complete timetable, then improves these preferences

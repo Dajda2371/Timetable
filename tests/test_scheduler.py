@@ -40,6 +40,29 @@ def test_lunches_can_stagger_to_share_a_teacher():
     assert {l["Mon"] for l in result.data["metadata"]["class_lunches"].values()} == {1, 2}
 
 
+@pytest.mark.parametrize("lunch", [[5, 6, 7], [7]])
+def test_six_consecutive_lessons_can_be_followed_by_lunch(lunch):
+    c = small_config(classes=1, teachers=1, hours=6, periods=6, lunch=lunch)
+    result = solve(c)
+    assert result.data is not None
+    verify_timetable(c, result.data)
+    assert set(result.data["classes_timetable"]["C0"]["Mon"]) == {str(p) for p in range(1, 7)}
+    assert result.data["metadata"]["class_lunches"]["C0"]["Mon"] == 7
+    assert result.data["metadata"]["quality_metrics"]["class_gaps"] == 0
+    # The extra lunch period remains unavailable for teaching.
+    lessons = result.data["classes_timetable"]["C0"]["Mon"]
+    lessons["7"] = lessons.pop("6")
+    with pytest.raises(ValueError, match="Invalid lesson period"):
+        verify_timetable(c, result.data)
+
+
+@pytest.mark.parametrize("hours,lunch", [(6, [5, 6]), (7, [5, 6, 7])])
+def test_capacity_counts_only_teaching_slots(hours, lunch):
+    c = small_config(classes=1, teachers=1, hours=hours, periods=6, lunch=lunch)
+    with pytest.raises(ConfigError, match="Class C0 needs"):
+        normalize_config(c)
+
+
 def test_infeasible_whole_subject_assignments_not_hidden_by_total_capacity():
     # Each teacher can fit one three-hour class in five periods, so two
     # teachers cannot teach three classes despite nine total hours fitting ten.
@@ -58,7 +81,7 @@ def test_infeasible_whole_subject_assignments_not_hidden_by_total_capacity():
     (lambda c: c["time_grant"]["1"].update(Math=True), "integer >= 0"),
     (lambda c: c["time_grant"]["1"].update(Math=3), "Class C0 needs"),
     (lambda c: c["time_grant"]["1"].update(Unknown=1), "No qualified teacher"),
-    (lambda c: c["schedule_config"]["Mon"].update(lunch_breaks=[3]), "within 1–2"),
+    (lambda c: c["schedule_config"]["Mon"].update(lunch_breaks=[4]), "within 1–3"),
     (lambda c: c["schedule_config"]["Mon"].update(max_periods=0), "integer >= 1"),
     (lambda c: c["teachers"].pop(), "Teachers T0 need"),
 ])

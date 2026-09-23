@@ -133,6 +133,27 @@ test('viewer uses generated configuration and renders per-class lunch', () => {
     assert.doesNotMatch(rendered, /WrongDay/);
 });
 
+test('viewer shows lunch after six lessons without adding a teaching slot', () => {
+    const h = harness(async () => { throw new Error('Unexpected request'); });
+    h.run(`
+        const lessons = Object.fromEntries(Array.from({length: 6}, (_, i) =>
+            [String(i + 1), {teacher: 'T', subject: 'Math'}]));
+        timetableData = {
+            classes_timetable: {A: {Monday: lessons}}, teachers_timetable: {},
+            metadata: {
+                configuration: {schedule_config: {Monday: {max_periods: 6, lunch_breaks: [5, 6, 7]}}},
+                class_lunches: {A: {Monday: 7}}
+            }
+        };
+        renderCurrentTimetables();
+    `);
+    const rendered = h.element('timetables-display-area').innerHTML;
+    assert.match(rendered, /Period 7/);
+    assert.doesNotMatch(rendered, /Period 8/);
+    assert.equal((rendered.match(/lesson-subject/g) || []).length, 6);
+    assert.match(rendered, /Lunch<\/span><\/td><\/tr>/);
+});
+
 test('legacy timetable without metadata remains renderable', () => {
     const h = harness(async () => { throw new Error('Unexpected request'); });
     h.run(`

@@ -115,14 +115,18 @@ def normalize_config(raw):
             fail(f"Lunch candidates for {day} must be a list.")
             lunch = []
         lunch = [integer(p, f"Lunch period for {day}", 1) for p in lunch]
-        if any(p > periods for p in lunch):
-            fail(f"Lunch periods for {day} must be within 1–{periods}.")
+        if any(p > periods + 1 for p in lunch):
+            fail(f"Lunch periods for {day} must be within 1–{periods + 1} (including lunch immediately after the last lesson period).")
         days[day] = {"max_periods": periods, "lunch_breaks": sorted(set(lunch))}
     c["schedule_config"] = days
     if issues:
         raise ConfigError(issues)
 
-    class_capacity = sum(d["max_periods"] - bool(d["lunch_breaks"]) for d in days.values())
+    # Lunch after the final lesson period does not consume a teaching slot.
+    class_capacity = sum(
+        d["max_periods"] - int(bool(d["lunch_breaks"]) and d["max_periods"] + 1 not in d["lunch_breaks"])
+        for d in days.values()
+    )
     teacher_capacity = sum(d["max_periods"] for d in days.values())
     # Demand sharing exactly the same eligible teacher pool gives useful, sound
     # capacity diagnostics, including several subjects with one sole teacher.
